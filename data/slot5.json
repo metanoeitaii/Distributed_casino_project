@@ -1,0 +1,14 @@
+ {
+ "gameName":"Asoee_Legacy",
+"ProviderName": "Paiksebet",
+"Stars": 5,
+"NoOfVotes": 49,
+"GameLogo": "/usr/bin/images/gameLogo.png",
+"MinBet": 0.1,
+"MaxBet": 20,
+"RiskLevel": "low",
+ "HashKey" : "AsoeeBonanza_secret_key5"
+
+
+
+}

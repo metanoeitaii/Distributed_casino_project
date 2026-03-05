@@ -1,0 +1,11 @@
+{
+"GameName":"Asoee_sugar_rush",
+"ProviderName": "RestaGaming",
+"Stars": 3,
+"NoOfVotes": 26,
+"GameLogo": "/usr/bin/images/gameLogo.png",
+"MinBet": 0.1,
+"MaxBet": 20,
+"RiskLevel": "medium",
+"HashKey": "Asoee_secret_key4"
+}

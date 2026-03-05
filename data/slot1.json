@@ -1,0 +1,14 @@
+{
+ "gameName":"AsoeeBonanza",
+"ProviderName": "RestaGaming",
+"Stars": 5,
+"NoOfVotes": 20,
+"GameLogo": "/usr/bin/images/gameLogo.png",
+"MinBet": 0.1,
+"MaxBet": 20,
+"RiskLevel": "medium",
+ "HashKey" : "AsoeeBonanza_secret_key"
+
+
+
+}
