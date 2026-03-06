@@ -1,0 +1,11 @@
+{
+"GameName":"Asoee_of_Madness",
+"ProviderName": "Paiksebet",
+"Stars": 2,
+"NoOfVotes": 46,
+"GameLogo": "/usr/bin/images/gameLogo.png",
+"MinBet": 0.1,
+"MaxBet": 10,
+"RiskLevel": "high",
+"HashKey": "Asoee_secret_key3"
+}

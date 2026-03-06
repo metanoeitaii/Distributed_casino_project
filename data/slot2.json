@@ -1,0 +1,11 @@
+{
+"GameName":"Asoee_Olympus",
+"ProviderName": "Bettare",
+"Stars": 4,
+"NoOfVotes": 15,
+"GameLogo": "/usr/bin/images/gameLogo.png",
+"MinBet": 0.1,
+"MaxBet": 20,
+"RiskLevel": "low",
+"HashKey": "Asoee_secret_key2"
+}
