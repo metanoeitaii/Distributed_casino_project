@@ -1,3 +1,4 @@
+package common;
 public class Message {
     public static final String SEPERATOR = " ";
     public static final String ADD_GAME ="ADD_GAME";
@@ -8,5 +9,6 @@ public class Message {
     public static final String ADD_BALANCE = "ADD_BALANCE";
     public static final String OK = "OK";
     public static final String ERROR = "ERROR";
+    public static final String PLAY = "PLAY";
     
 }
