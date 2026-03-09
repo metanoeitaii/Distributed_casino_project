@@ -25,32 +25,32 @@ public class WorkerHandler implements Runnable{
             String requestType = in.readLine();
 
             switch(requestType){ //analoga ton typo toy request, pame se antistoixh me8odo
-                case "ADD_GAME":
+                case Message.ADD_GAME:
                     handleAddGame(in, out);
                     break;
-                case "REMOVE_GAME":
+                case Message.REMOVE_GAME:
                     handleRemoveGame(in, out);
                     break;
-                case "UPDATE_RISK":
+                case Message.UPDATE_RISK:
                     handleUpdateRisk(in, out);
                     break;
-                case "SEARCH":
+                case Message.SEARCH:
                     handleSearch(in, out);
                     break;
-                case "PLAY":
+                case Message.PLAY:
                     handlePlay(in, out);
                     break;
-                case "MAP":
+                case Message.MAP:
                     handleMap(in, out);
                     break;
-                case "ADD_BALANCE":
+                case Message.ADD_BALANCE:
                     handleAddBalance(in, out);
                     break;
-                case "VOTE":
+                case Message.VOTE:
                     handleVote(in, out);
                     break;
                 default:
-                    out.println("ERROR: UNKNOWN REQUEST");
+                    out.println(Message.ERROR + ": UNKNOWN REQUEST");
                 
             }
         }catch (IOException e){
@@ -65,7 +65,7 @@ public class WorkerHandler implements Runnable{
         String ProviderName = in.readLine();
 
         String starsStr = in.readLine();
-        double Stars = Double.parseDouble(starsStr); //
+        double Stars = Double.parseDouble(starsStr); 
 
         String votesStr = in.readLine();
         int NoOfVotes = Integer.parseInt(votesStr);
@@ -85,7 +85,7 @@ public class WorkerHandler implements Runnable{
         Game game = new Game(GameName, ProviderName, Stars, NoOfVotes, GameLogo, MinBet, MaxBet, RiskLevel, HashKey);
         game.initSRG("localhost", 6000); //jekinaei SRG client
         storage.addGame(game); //apo8hkeysh game sto hashmap
-        out.println("OK"); //eidopoihsh master oti ola kala 
+        out.println(Message.OK); //eidopoihsh master oti ola kala 
     }
 
     private void handleRemoveGame(BufferedReader in, PrintWriter out) throws IOException {
@@ -93,12 +93,12 @@ public class WorkerHandler implements Runnable{
         Game game = storage.getGame(GameName); //psaxnw an yparxei to game sto storage 
 
         if(game == null){ //an den yparxei stelnoume error
-            out.println("ERROR: GAME NOT FOUND");
+            out.println(Message.ERROR + ": GAME NOT FOUND");
             return;
         }
 
         storage.removeGame(GameName); //isActive = false, de svhnoyme stoixeia 
-        out.println("OK"); //ola kala se master 
+        out.println(Message.OK); //ola kala se master 
     }
 
     private void handleUpdateRisk(BufferedReader in, PrintWriter out) throws IOException {
@@ -107,12 +107,12 @@ public class WorkerHandler implements Runnable{
         Game game = storage.getGame(GameName); //psaxnw an yparxei to game sto storage 
 
         if(game == null){
-            out.println("ERROR: GAME NOT FOUND");
+            out.println(Message.ERROR + ": GAME NOT FOUND");
             return;
         }
 
         storage.updateRiskLevel(GameName, newRiskLevel); //allazw risk level kai ypologizw neo jackpot
-        out.println("OK"); //ola kala master
+        out.println(Message.OK); //ola kala master
     }
 
     //psaxnei paixnidia basei filtrwn pou stelnei o player
@@ -146,7 +146,7 @@ public class WorkerHandler implements Runnable{
             out.println(game.getBetCategory());
             out.println(game.getJackpot());
         }
-        out.println("END");
+        out.println(Message.END);
     }
 
     private void handlePlay(BufferedReader in, PrintWriter out) throws IOException {
@@ -157,20 +157,20 @@ public class WorkerHandler implements Runnable{
 
         Game game = storage.getGame(GameName); //elegxos an yparxei to game sto storage 
         if(game == null || !game.isActive()){ //an den yparxei h an einai inactive -> error
-            out.println("ERROR: GAME NOT FOUND");
+            out.println(Message.ERROR + ": GAME NOT FOUND");
             return;
         }
 
         //elegxos oriwn pontarismatos 
         if(betAmount < game.getMinBet() || betAmount > game.getMaxBet()){
-            out.println("ERROR: BET AMOUNT IS OUTSIDE THE ALLOWED RANGE");
+            out.println(Message.ERROR + ": BET AMOUNT IS OUTSIDE THE ALLOWED RANGE");
             return;
         }
 
         Player player = storage.getOrCreatePlayer(playerId); //briskei player h ton ftiaxnei an den yparxei
         boolean hasBalance = player.deductBalance(betAmount); //afairei to bet apo to balance, an den yparxei arketo balance -> false
         if(!hasBalance){ //an den exei arketo balance -> error
-            out.println("ERROR: NOT ENOUGH BALANCE");
+            out.println(Message.ERROR + ": NOT ENOUGH BALANCE");
             return;
         }
 
@@ -178,7 +178,7 @@ public class WorkerHandler implements Runnable{
         try{ // an einai adeio perimenei 
             randomNumber = game.getRandomNumber(); 
         }catch(InterruptedException e){ //an stravwsei kati -> error
-            out.println("ERROR : COULD NOT GET RANDOM NUMBER");
+            out.println(Message.ERROR + ": COULD NOT GET RANDOM NUMBER");
             return;
         }
 
@@ -209,14 +209,14 @@ public class WorkerHandler implements Runnable{
 
         game.addProfitLoss(-result); //enhmerwsh esodwn game, antistrofo proshmo(to systhma kerdizei otan o player xanei)
 
-        out.println("OK"); //ola kala master
+        out.println(Message.OK); //ola kala master
         out.println(result); //kai to result ston master
         
         if(isJackpot){ //stelnw an htan jackpot 
-            out.println("JACKPOT");
+            out.println(Message.JACKPOT);
 
         }else{ //h kanoniko apotelesma 
-            out.println("NORMAL");
+            out.println(Message.NORMAL);
         }
     }
 
@@ -234,7 +234,7 @@ public class WorkerHandler implements Runnable{
                 out.println(bet.getResult()); //kai result 
             }
         }
-        out.println("END");
+        out.println(Message.END);
     }
 
     private void handleAddBalance(BufferedReader in, PrintWriter out) throws IOException{
@@ -243,7 +243,7 @@ public class WorkerHandler implements Runnable{
         double amount = Double.parseDouble(amountStr);
 
         storage.addBalance(playerId, amount); //pros8etei to poso sto balance toy player
-        out.println("OK"); //ola kala master
+        out.println(Message.OK); //ola kala master
     }
 
     private void handleVote(BufferedReader in, PrintWriter out) throws IOException{
@@ -253,17 +253,17 @@ public class WorkerHandler implements Runnable{
 
         if(
             Stars < 1 || Stars > 5){ //elegxos gia oria
-            out.println("ERROR: STARS MUST BE BETWEEN 1 AND 5");
+            out.println(Message.ERROR + ": STARS MUST BE BETWEEN 1 AND 5");
             return;
         }
 
         Game game = storage.getGame(GameName); //psaxnw an yparxei to game
         if(game == null){
-            out.println("ERROR: GAME NOT FOUND");
+            out.println(Message.ERROR + ": GAME NOT FOUND");
             return;
         }
 
         game.addVote(Stars); //pros8etei nea pshfo kai ypologizei neo MO
-        out.println("OK");
+        out.println(Message.OK);
     }
 }
