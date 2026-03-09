@@ -1,3 +1,4 @@
+import common.Message;
 import java.util.List;
 import java.util.ArrayList;
 import java.net.*; //gia sockets
