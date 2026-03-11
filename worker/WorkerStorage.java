@@ -1,7 +1,11 @@
+package worker;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import common.*;
+import srg.*;
 
 //in-memory bash dedomenwn Worker, apo8hkeyei games, bets, players
 public class WorkerStorage{
@@ -73,7 +77,11 @@ public class WorkerStorage{
 
     //pros8etei balance se paixth 
     public synchronized void addBalance(String playerId, double amount){
-        Player player = getOrCreatePlayer(playerId);
+        Player player = players.get(playerId);
+        if(player == null){
+            player = new Player(playerId, 0.0);
+            players.put(playerId, player);
+        }
         player.addBalance(amount);
     }
 }

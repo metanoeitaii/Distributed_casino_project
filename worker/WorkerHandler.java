@@ -1,18 +1,26 @@
+package worker;
+
 import common.Message;
 import java.util.List;
 import java.util.ArrayList;
 import java.net.*; //gia sockets
 import java.io.*;
+import common.*;
+import srg.*;
 
 //xeirizetai ka8e request apo master se jexwristo thread
 public class WorkerHandler implements Runnable{
     private Socket socket; // socket connection me master 
     private WorkerStorage storage; // to in-memory storage 
+    private String srgHost; 
+    private int srgPort;
 
     //pairnei to socket kai to storage apo ton Worker otan aytos dhmioyrgeitai
-    public WorkerHandler(Socket socket, WorkerStorage storage){
+    public WorkerHandler(Socket socket, WorkerStorage storage, String srgHost, int srgPort){
         this.socket = socket;
         this.storage = storage;
+        this.srgHost = srgHost;
+        this.srgPort = srgPort; 
     }
 
     @Override
@@ -84,7 +92,7 @@ public class WorkerHandler implements Runnable{
 
         //ftiaxnei game object
         Game game = new Game(GameName, ProviderName, Stars, NoOfVotes, GameLogo, MinBet, MaxBet, RiskLevel, HashKey);
-        game.initSRG("localhost", 6000); //jekinaei SRG client
+        game.initSRG(srgHost, srgPort); //jekinaei SRG client
         storage.addGame(game); //apo8hkeysh game sto hashmap
         out.println(Message.OK); //eidopoihsh master oti ola kala 
     }
@@ -139,6 +147,7 @@ public class WorkerHandler implements Runnable{
         for(Game game : results){
             out.println(game.getGameName());
             out.println(game.getProviderName());
+            out.println(game.getGameLogo());
             out.println(game.getStars());
             out.println(game.getNoOfVotes());
             out.println(game.getMinBet());
@@ -179,6 +188,7 @@ public class WorkerHandler implements Runnable{
         try{ // an einai adeio perimenei 
             randomNumber = game.getRandomNumber(); 
         }catch(InterruptedException e){ //an stravwsei kati -> error
+            player.addBalance(betAmount); //epistrefei ta xrhmata prin fygei
             out.println(Message.ERROR + ": COULD NOT GET RANDOM NUMBER");
             return;
         }
@@ -199,20 +209,20 @@ public class WorkerHandler implements Runnable{
         double winAmount = betAmount * multiplier;
         double result = winAmount - betAmount;
 
-        //an kerdise epistrefoume kerdos + arxiko bet 
-        if(result > 0){
-            player.addBalance(result + betAmount);
+        if(multiplier > 0){
+            player.addBalance(winAmount);
         }
+
 
         //neo bet object gia to istoriko
         Bet bet = new Bet(playerId, GameName, game.getProviderName(), betAmount, multiplier);
         storage.addBet(bet); //apo8hkeysh bet sto betHistory gia ta mapReduce queries 
 
         game.addProfitLoss(-result); //enhmerwsh esodwn game, antistrofo proshmo(to systhma kerdizei otan o player xanei)
-
-        out.println(Message.OK); //ola kala master
-        out.println(result); //kai to result ston master
         
+        out.println(Message.OK);
+        out.println(result);
+
         if(isJackpot){ //stelnw an htan jackpot 
             out.println(Message.JACKPOT);
 
@@ -229,10 +239,10 @@ public class WorkerHandler implements Runnable{
         for(Bet bet : bets){
             if(mapType.equals("PROVIDER")){ // an 8eloyme query ana provider 
                 out.println(bet.getProviderName()); //stelnoume provider name 
-                out.println(bet.getResult()); //kai result
+                out.println(-bet.getResult()); //kai anti8eto proshmo
             }else if (mapType.equals("PLAYER")){ //an player
                 out.println(bet.getPlayerId()); //playerId
-                out.println(bet.getResult()); //kai result 
+                out.println(-bet.getResult()); //kai result 
             }
         }
         out.println(Message.END);
