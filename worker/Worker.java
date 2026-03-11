@@ -40,7 +40,7 @@ public class Worker{
         int port = Integer.parseInt(args[0]);
         String srgHost = args[1];       
         int srgPort = Integer.parseInt(args[2]); 
-        Worker worker = new Worker(port);
+        Worker worker = new Worker(port, srgHost, srgPort);
         worker.start();
     }
 }
