@@ -9,6 +9,8 @@ import srg.*;
 public class Worker{
     private int port;
     private WorkerStorage storage;
+    private String srgHost;     
+    private int srgPort;
 
     public Worker(int port, String srgHost, int srgPort){
         this.port = port; //port poy akoyei o worker
