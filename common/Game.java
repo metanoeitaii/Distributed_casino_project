@@ -1,4 +1,7 @@
 //paixnidi sto systhma 
+package common;
+import srg.*;
+
 public class Game{
 
     private String GameName; //monadiko onoma game
