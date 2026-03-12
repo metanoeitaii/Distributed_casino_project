@@ -5,7 +5,6 @@ import java.util.*;
 import common.Message;
 public class MasterServer {
     private static int clientport = 1000;
-    private static int workerport = 1001;
     private static List<Socket> workers = new ArrayList<>();
     
 
@@ -14,29 +13,11 @@ public class MasterServer {
        try{                                                         
         // to try to bazw epeidh petaei Exception sto object
     ServerSocket serverSocket = new ServerSocket(clientport);
-    ServerSocket serverSocket2 = new ServerSocket(workerport);
+   
     System.out.println("Perimenoume gia clients sto port 1000");
-    System.out.println("Perimenoume gia workers sto port 1001");
-    Thread workerThread = new Thread(){
-        
-        public void run(){
-            try{
-                //loop gia na dexetai pollous workers 
-                while (true) {
-                    Socket sock1 = serverSocket2.accept();
-                    System.out.println("O worker sindtethike");
-                    //apothikeuw worker
-                    workers.add(sock1);
-                    
-                }
-            }
-                 catch (Exception e) {
-                    System.out.println("ERROR");
-                    e.printStackTrace();
-                }
-        }
-    };
-        workerThread.start();
+    Socket worker1 = new Socket("192.168.bla.bla",1001);
+    workers.add(worker1);
+    System.out.println("Sundesh sto worker 1");
     //loop gia na dexetai pollous clients
     while (true) {
         Socket sock2 =serverSocket.accept();
@@ -57,6 +38,10 @@ public class MasterServer {
             String maxBet = in.readLine();
             String riskLevel = in.readLine();
             String HashKey = in.readLine();
+             if(workers.size()==0){
+                System.out.println("Error mh egkuros arithmos apo workers");
+                return;
+            }
             //upologizoume se poio worker paei mesw hash
             char protogramma = GameName.charAt(0);
             int workerthesi= protogramma % workers.size();
@@ -66,6 +51,10 @@ public class MasterServer {
             System.out.println("H entoli pou elaba einai REMOVE_GAME");
              String GameName = in.readLine();
              //upologizoume se poio worker paei mesw hash
+              if(workers.size()==0){
+                System.out.println("Error mh egkuros arithmos apo workers");
+                return;
+            }
             char protogramma = GameName.charAt(0);
             int workerthesi= protogramma % workers.size();
             System.out.println("To game "+ GameName + "paei ston worker "+ workerthesi);
@@ -75,11 +64,15 @@ public class MasterServer {
 
             System.out.println("H entoli pou elava einai SEARCH");
             // o client einai player 
-        }else if(entoli.equals(Message.RATE)){
+        }else if(entoli.equals(Message.VOTE)){
              String GameName = in.readLine();
             String Stars = in.readLine();
             System.out.println("H entoli pou elava einai Rate");
               //upologizoume se poio worker paei mesw hash
+               if(workers.size()==0){
+                System.out.println("Error mh egkuros arithmos apo workers");
+                return;
+            }
             char protogramma = GameName.charAt(0);
             int workerthesi= protogramma % workers.size();
             System.out.println("To game "+ GameName + "paei ston worker "+ workerthesi);
@@ -91,16 +84,14 @@ public class MasterServer {
         }else if(entoli.equals(Message.UPDATE_RISK)){
             System.out.println("H entoli pou elava einai UPDATE_RISK");
               String GameName = in.readLine();
-            String providerName = in.readLine();
-            String Stars = in.readLine();
-            String noOfVotes = in.readLine();
-            String gameLogo = in.readLine();
-            String minBet = in.readLine();
-            String maxBet = in.readLine();
+            
             String riskLevel = in.readLine();
-            String HashKey = in.readLine();
             System.out.println("H entoli pou elava einai Rate");
               //upologizoume se poio worker paei mesw hash
+               if(workers.size()==0){
+                System.out.println("Error mh egkuros arithmos apo workers");
+                return;
+            }
             char protogramma = GameName.charAt(0);
             int workerthesi= protogramma % workers.size();
             System.out.println("To game "+ GameName + "paei ston worker "+ workerthesi);
@@ -110,8 +101,19 @@ public class MasterServer {
         else if(entoli.equals(Message.PLAY)) 
             {
             System.out.println("H entoli pou elaba einai Play");
-              String GameName = in.readLine();
-            System.out.println("H entoli pou elava einai Rate");
+            String GameName = in.readLine();
+            String playerId = in.readLine();
+            String betAmount = in.readLine();
+            System.out.println("H entoli pou elava einai Rate");    
+
+            if(workers.size()==0){
+                System.out.println("Error mh egkuros arithmos apo workers");
+                return;
+            }
+                
+                
+                
+                
               //upologizoume se poio worker paei mesw hash
             char protogramma = GameName.charAt(0);
             int workerthesi= protogramma % workers.size();
