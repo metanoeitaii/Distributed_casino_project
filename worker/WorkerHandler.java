@@ -14,24 +14,27 @@ public class WorkerHandler implements Runnable{
     private WorkerStorage storage; // to in-memory storage 
     private String srgHost; 
     private int srgPort;
+    private String reducerHost;
+    private int reducerPort;
 
     //pairnei to socket kai to storage apo ton Worker otan aytos dhmioyrgeitai
-    public WorkerHandler(Socket socket, WorkerStorage storage, String srgHost, int srgPort){
+    public WorkerHandler(Socket socket, WorkerStorage storage, String srgHost, int srgPort, String reducerHost, int reducerPort){
         this.socket = socket;
         this.storage = storage;
         this.srgHost = srgHost;
         this.srgPort = srgPort; 
+        this.reducerHost = reducerHost;
+        this.reducerPort = reducerPort;
     }
 
     @Override
     public void run(){
         try(
-            //gia na diabazoume grammh grammh apo master 
-            //diabazei grammh grammh apo to master 
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true); //stelnei messages sto master, true -> autoflush messages
+            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+
         ) {
-            String requestType = in.readLine();
+            String requestType = (String) in.readObject();
 
             switch(requestType){ //analoga ton typo toy request, pame se antistoixh me8odo
                 case Message.ADD_GAME:
@@ -59,77 +62,77 @@ public class WorkerHandler implements Runnable{
                     handleVote(in, out);
                     break;
                 default:
-                    out.println(Message.ERROR + ": UNKNOWN REQUEST");
+                    out.writeObject(Message.ERROR + ": UNKNOWN REQUEST");
                 
             }
-        }catch (IOException e){
+        }catch (IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
     }
 
-    private void handleAddGame(BufferedReader in, PrintWriter out) throws IOException {
+    private void handleAddGame(ObjectInputStream in, ObjectOutputStream out) throws IOException, ClassNotFoundException {
         
         //diabazei oti steilei o master 
-        String GameName = in.readLine();
-        String ProviderName = in.readLine();
+        String GameName = (String) in.readObject();
+        String ProviderName = (String) in.readObject();
 
-        String starsStr = in.readLine();
+        String starsStr = (String) in.readObject();
         double Stars = Double.parseDouble(starsStr); 
 
-        String votesStr = in.readLine();
+        String votesStr = (String) in.readObject();
         int NoOfVotes = Integer.parseInt(votesStr);
 
-        String GameLogo = in.readLine();
+        String GameLogo = (String) in.readObject();
 
-        String minStr = in.readLine();
+        String minStr = (String) in.readObject();
         double MinBet = Double.parseDouble(minStr);
 
-        String maxStr = in.readLine();
+        String maxStr = (String) in.readObject();
         double MaxBet = Double.parseDouble(maxStr);
 
-        String RiskLevel = in.readLine();
-        String HashKey = in.readLine();
+        String RiskLevel = (String) in.readObject();
+        String HashKey = (String) in.readObject();
 
         //ftiaxnei game object
         Game game = new Game(GameName, ProviderName, Stars, NoOfVotes, GameLogo, MinBet, MaxBet, RiskLevel, HashKey);
         game.initSRG(srgHost, srgPort); //jekinaei SRG client
         storage.addGame(game); //apo8hkeysh game sto hashmap
-        out.println(Message.OK); //eidopoihsh master oti ola kala 
+        out.writeObject(Message.OK); //eidopoihsh master oti ola kala 
     }
 
-    private void handleRemoveGame(BufferedReader in, PrintWriter out) throws IOException {
-        String GameName = in.readLine(); //onoma game poy master 8elei na afairesei
+    private void handleRemoveGame(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException {
+        String GameName = (String) in.readObject(); //onoma game poy master 8elei na afairesei
         Game game = storage.getGame(GameName); //psaxnw an yparxei to game sto storage 
 
         if(game == null){ //an den yparxei stelnoume error
-            out.println(Message.ERROR + ": GAME NOT FOUND");
+            out.writeObject(Message.ERROR + ": GAME NOT FOUND");
             return;
         }
 
         storage.removeGame(GameName); //isActive = false, de svhnoyme stoixeia 
-        out.println(Message.OK); //ola kala se master 
+        out.writeObject(Message.OK); //ola kala se master 
     }
 
-    private void handleUpdateRisk(BufferedReader in, PrintWriter out) throws IOException {
-        String GameName = in.readLine();
-        String newRiskLevel = in.readLine(); //diabazw neo risk level
+    private void handleUpdateRisk(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException{
+        String GameName = (String) in.readObject();
+        String newRiskLevel = (String) in.readObject(); //diabazw neo risk level
         Game game = storage.getGame(GameName); //psaxnw an yparxei to game sto storage 
 
         if(game == null){
-            out.println(Message.ERROR + ": GAME NOT FOUND");
+            out.writeObject(Message.ERROR + ": GAME NOT FOUND");
             return;
         }
 
         storage.updateRiskLevel(GameName, newRiskLevel); //allazw risk level kai ypologizw neo jackpot
-        out.println(Message.OK); //ola kala master
+        out.writeObject(Message.OK); //ola kala master
     }
 
     //psaxnei paixnidia basei filtrwn pou stelnei o player
-    private void handleSearch(BufferedReader in, PrintWriter out) throws IOException {
-        String betCategory = in.readLine();
-        String RiskLevel = in.readLine();
+    private void handleSearch(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException {
+        String betCategory = (String) in.readObject();
+        String RiskLevel = (String) in.readObject();
 
-        String minStarsStr = in.readLine();
+        String minStarsStr = (String) in.readObject();
         double minStars = Double.parseDouble(minStarsStr);
 
         List<Game> results = new ArrayList<>(); //lista me ta results 
@@ -145,42 +148,42 @@ public class WorkerHandler implements Runnable{
 
         //stelnw ta stoixeia ka8e game
         for(Game game : results){
-            out.println(game.getGameName());
-            out.println(game.getProviderName());
-            out.println(game.getGameLogo());
-            out.println(game.getStars());
-            out.println(game.getNoOfVotes());
-            out.println(game.getMinBet());
-            out.println(game.getMaxBet());
-            out.println(game.getRiskLevel());
-            out.println(game.getBetCategory());
-            out.println(game.getJackpot());
+            out.writeObject(game.getGameName());
+            out.writeObject(game.getProviderName());
+            out.writeObject(game.getGameLogo());
+            out.writeObject(game.getStars());
+            out.writeObject(game.getNoOfVotes());
+            out.writeObject(game.getMinBet());
+            out.writeObject(game.getMaxBet());
+            out.writeObject(game.getRiskLevel());
+            out.writeObject(game.getBetCategory());
+            out.writeObject(game.getJackpot());
         }
-        out.println(Message.END);
+        out.writeObject(Message.END);
     }
 
-    private void handlePlay(BufferedReader in, PrintWriter out) throws IOException {
-        String playerId = in.readLine(); //poios player paizei
-        String GameName = in.readLine(); //se poio game
-        String betAmountStr = in.readLine(); //posa pontarei
+    private void handlePlay(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException{
+        String playerId = (String) in.readObject(); //poios player paizei
+        String GameName = (String) in.readObject(); //se poio game
+        String betAmountStr = (String) in.readObject(); //posa pontarei
         double betAmount = Double.parseDouble(betAmountStr);
 
         Game game = storage.getGame(GameName); //elegxos an yparxei to game sto storage 
         if(game == null || !game.isActive()){ //an den yparxei h an einai inactive -> error
-            out.println(Message.ERROR + ": GAME NOT FOUND");
+            out.writeObject(Message.ERROR + ": GAME NOT FOUND");
             return;
         }
 
         //elegxos oriwn pontarismatos 
         if(betAmount < game.getMinBet() || betAmount > game.getMaxBet()){
-            out.println(Message.ERROR + ": BET AMOUNT IS OUTSIDE THE ALLOWED RANGE");
+            out.writeObject(Message.ERROR + ": BET AMOUNT IS OUTSIDE THE ALLOWED RANGE");
             return;
         }
 
         Player player = storage.getOrCreatePlayer(playerId); //briskei player h ton ftiaxnei an den yparxei
         boolean hasBalance = player.deductBalance(betAmount); //afairei to bet apo to balance, an den yparxei arketo balance -> false
         if(!hasBalance){ //an den exei arketo balance -> error
-            out.println(Message.ERROR + ": NOT ENOUGH BALANCE");
+            out.writeObject(Message.ERROR + ": NOT ENOUGH BALANCE");
             return;
         }
 
@@ -189,7 +192,7 @@ public class WorkerHandler implements Runnable{
             randomNumber = game.getRandomNumber(); 
         }catch(InterruptedException e){ //an stravwsei kati -> error
             player.addBalance(betAmount); //epistrefei ta xrhmata prin fygei
-            out.println(Message.ERROR + ": COULD NOT GET RANDOM NUMBER");
+            out.writeObject(Message.ERROR + ": COULD NOT GET RANDOM NUMBER");
             return;
         }
 
@@ -220,61 +223,71 @@ public class WorkerHandler implements Runnable{
 
         game.addProfitLoss(-result); //enhmerwsh esodwn game, antistrofo proshmo(to systhma kerdizei otan o player xanei)
         
-        out.println(Message.OK);
-        out.println(result);
+        out.writeObject(Message.OK);
+        out.writeObject(result);
 
         if(isJackpot){ //stelnw an htan jackpot 
-            out.println(Message.JACKPOT);
+            out.writeObject(Message.JACKPOT);
 
         }else{ //h kanoniko apotelesma 
-            out.println(Message.NORMAL);
+            out.writeObject(Message.NORMAL);
         }
     }
 
-    private void handleMap(BufferedReader in, PrintWriter out) throws IOException {
-        String mapType = in.readLine(); //ti eidous query 8elei o manager (provider / player)
+    private void handleMap(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException{
+        String mapType = (String) in.readObject(); //ti eidous query 8elei o manager (provider / player)
 
         List<Bet> bets = storage.getBetHistory(); //ola ta bets poy eginan se ayton ton worker 
 
-        for(Bet bet : bets){
-            if(mapType.equals("PROVIDER")){ // an 8eloyme query ana provider 
-                out.println(bet.getProviderName()); //stelnoume provider name 
-                out.println(-bet.getResult()); //kai anti8eto proshmo
-            }else if (mapType.equals("PLAYER")){ //an player
-                out.println(bet.getPlayerId()); //playerId
-                out.println(-bet.getResult()); //kai result 
+        //syndesh me reducer
+        Socket reducerSocket = new Socket (reducerHost, reducerPort);
+
+        try{
+            ObjectOutputStream reducerOut = new ObjectOutputStream(reducerSocket.getOutputStream());
+    
+            for(Bet bet : bets){
+                if(mapType.equals("PROVIDER")){ // an 8eloyme query ana provider 
+                    reducerOut.writeObject(bet.getProviderName()); //stelnoume provider name 
+                    reducerOut.writeObject(-bet.getResult()); //kai anti8eto proshmo
+                }else if (mapType.equals("PLAYER")){ //an player
+                    reducerOut.writeObject(bet.getPlayerId()); //playerId
+                    reducerOut.writeObject(-bet.getResult()); //kai result 
+                }
             }
+            reducerOut.writeObject(Message.END);
+        }finally{
+            reducerSocket.close(); //panta na kleinei
         }
-        out.println(Message.END);
+        out.writeObject(Message.OK); //eidopoiw master ola kala 
     }
 
-    private void handleAddBalance(BufferedReader in, PrintWriter out) throws IOException{
-        String playerId = in.readLine(); //player poy 8elei na balei tokens
-        String amountStr = in.readLine(); //poso poy 8elei na pros8esei
+    private void handleAddBalance(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException{
+        String playerId = (String) in.readObject(); //player poy 8elei na balei tokens
+        String amountStr = (String) in.readObject(); //poso poy 8elei na pros8esei
         double amount = Double.parseDouble(amountStr);
 
         storage.addBalance(playerId, amount); //pros8etei to poso sto balance toy player
-        out.println(Message.OK); //ola kala master
+        out.writeObject(Message.OK); //ola kala master
     }
 
-    private void handleVote(BufferedReader in, PrintWriter out) throws IOException{
-        String GameName = in.readLine(); //onoma game gia rate
-        String starsStr = in.readLine(); //rate 1-5
+    private void handleVote(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException{
+        String GameName = (String) in.readObject(); //onoma game gia rate
+        String starsStr = (String) in.readObject(); //rate 1-5
         int Stars = Integer.parseInt(starsStr);
 
         if(
             Stars < 1 || Stars > 5){ //elegxos gia oria
-            out.println(Message.ERROR + ": STARS MUST BE BETWEEN 1 AND 5");
+            out.writeObject(Message.ERROR + ": STARS MUST BE BETWEEN 1 AND 5");
             return;
         }
 
         Game game = storage.getGame(GameName); //psaxnw an yparxei to game
         if(game == null){
-            out.println(Message.ERROR + ": GAME NOT FOUND");
+            out.writeObject(Message.ERROR + ": GAME NOT FOUND");
             return;
         }
 
         game.addVote(Stars); //pros8etei nea pshfo kai ypologizei neo MO
-        out.println(Message.OK);
+        out.writeObject(Message.OK);
     }
 }

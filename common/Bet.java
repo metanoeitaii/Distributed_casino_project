@@ -1,6 +1,7 @@
 package common;
+import java.io.Serializable;
 
-public class Bet{
+public class Bet implements Serializable {
     private String playerId; //id player poy ekane to bet
     private String GameName;
     private String ProviderName;

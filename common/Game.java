@@ -1,8 +1,9 @@
 //paixnidi sto systhma 
 package common;
 import srg.*;
+import java.io.Serializable;
 
-public class Game{
+public class Game implements Serializable{
 
     private String GameName; //monadiko onoma game
     private String ProviderName; //onoma paroxou
