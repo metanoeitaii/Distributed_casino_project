@@ -1,6 +1,7 @@
 package common;
+import java.io.Serializable;
 
-public class Player{
+public class Player implements Serializable{
     private String playerId;
     private double balance;
 

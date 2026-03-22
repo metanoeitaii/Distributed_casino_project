@@ -1,7 +1,7 @@
 package srg;
 
 import java.net.*; //gia socket 
-import java.io.*; //gia BufferedReader, PrintWriter
+import java.io.*; 
 import java.security.MessageDigest; //gia SHA-256
 import java.security.NoSuchAlgorithmException; //gia to exception toy SHA-256
 
@@ -25,14 +25,14 @@ public class SRGClient implements Runnable{
     public void run(){
         try(
             Socket socket = new Socket(host, port); //syndesh me SRG server 
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
         ) {
-            out.println(secret); //otan ginei connection, stelnw to hashkey gia na jerei o SRG gia poio game kanei numbers
+            out.writeObject(secret); //otan ginei connection, stelnw to hashkey gia na jerei o SRG gia poio game kanei numbers
 
             while(true){ //trexei synexeia, pairnei ari8mous kai gemizei to buffer
-                String numberStr = in.readLine(); //diabazei to random number poy esteile o SRG
-                String receivedHash = in.readLine(); //diabazei to hash poy esteile o SRG
+                String numberStr = (String) in.readObject(); //diabazei to random number poy esteile o SRG
+                String receivedHash = (String) in.readObject(); //diabazei to hash poy esteile o SRG
 
                 //an to connection kleisei, stamatame 
                 if(numberStr == null || receivedHash == null){
@@ -49,7 +49,7 @@ public class SRGClient implements Runnable{
 
                 }
             }
-        } catch (IOException | InterruptedException e){
+        } catch (IOException | InterruptedException | ClassNotFoundException e){
             e.printStackTrace();
         }
     }

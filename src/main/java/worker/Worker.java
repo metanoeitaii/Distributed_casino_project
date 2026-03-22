@@ -11,12 +11,17 @@ public class Worker{
     private WorkerStorage storage;
     private String srgHost;     
     private int srgPort;
+    private String reducerHost;
+    private int reducerPort;
 
-    public Worker(int port, String srgHost, int srgPort){
+    public Worker(int port, String srgHost, int srgPort, String reducerHost, int reducerPort){
         this.port = port; //port poy akoyei o worker
         this.srgHost = srgHost;
         this.srgPort = srgPort; 
+        this.reducerHost = reducerHost;
+        this.reducerPort = reducerPort;
         this.storage = new WorkerStorage(); //to in-memory storage poy ekana , ftiaxnw ena adeio
+
     }
 
     public void start(){
@@ -40,7 +45,9 @@ public class Worker{
         int port = Integer.parseInt(args[0]);
         String srgHost = args[1];       
         int srgPort = Integer.parseInt(args[2]); 
-        Worker worker = new Worker(port, srgHost, srgPort);
+        String reducerHost = args[3];
+        int reducerPort = Integer.parseInt(args[4]); 
+        Worker worker = new Worker(port, srgHost, srgPort, reducerHost, reducerPort);
         worker.start();
     }
 }
