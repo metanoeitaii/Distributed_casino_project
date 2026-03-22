@@ -2,8 +2,11 @@ package master;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 import common.Message;
 
@@ -44,19 +47,19 @@ public class ClientHandler extends Thread {
                 // new Socket gia worker 
                 Socket workerSocket = new Socket(workerHosts.get(workerthesi),workerPorts.get(workerthesi));
                 //stelnw  dedomena se workerhandler 
-                PrintWriter workerOut = new PrintWriter(workerSocket.getOutputStream(), true);
-                workerOut.println(Message.ADD_GAME);
-                workerOut.println(GameName);
-                workerOut.println(providerName);
-                workerOut.println(Stars);
-                workerOut.println(noOfVotes);
-                workerOut.println(gameLogo);
-                workerOut.println(minBet);
-                workerOut.println(maxBet);
-                workerOut.println(riskLevel);
-                workerOut.println(HashKey);
-                BufferedReader workerIn = new BufferedReader(new InputStreamReader(workerSocket.getInputStream()));
-                String apantisii = workerIn.readLine();
+                ObjectOutputStream workerOut = new ObjectOutputStream(workerSocket.getOutputStream());
+                workerOut.writeObject(Message.ADD_GAME);
+                workerOut.writeObject(GameName);
+                workerOut.writeObject(providerName);
+                workerOut.writeObject(Stars);
+                workerOut.writeObject(noOfVotes);
+                workerOut.writeObject(gameLogo);
+                workerOut.writeObject(minBet);
+                workerOut.writeObject(maxBet);
+                workerOut.writeObject(riskLevel);
+                workerOut.writeObject(HashKey);
+               ObjectInputStream workerIn = new ObjectInputStream(workerSocket.getInputStream());
+                String apantisii = (String)workerIn.readObject();
                 PrintWriter clientout = new PrintWriter(sock2.getOutputStream(),true);
                 clientout.println(apantisii);
                 //kleinw worker socket
@@ -72,11 +75,11 @@ public class ClientHandler extends Thread {
                   // new Socket gia worker 
                 Socket workerSocket = new Socket(workerHosts.get(workerthesi),workerPorts.get(workerthesi));
                  //stelnw  dedomena se workerhandler 
-                PrintWriter workerOut = new PrintWriter(workerSocket.getOutputStream(), true);
-                workerOut.println(Message.REMOVE_GAME);
-                workerOut.println(GameName);
-                BufferedReader workerIn = new BufferedReader(new InputStreamReader(workerSocket.getInputStream()));
-                String apantisi = workerIn.readLine();
+                ObjectOutputStream workerOut = new ObjectOutputStream(workerSocket.getOutputStream());
+                workerOut.writeObject(Message.REMOVE_GAME);
+                workerOut.writeObject(GameName);
+               ObjectInputStream workerIn = new ObjectInputStream(workerSocket.getInputStream());
+                String apantisi = (String)workerIn.readObject();
                 PrintWriter clientout = new PrintWriter(sock2.getOutputStream(),true);
                 clientout.println(apantisi);
                 //kleinw worker socket 
@@ -85,24 +88,51 @@ public class ClientHandler extends Thread {
             else if (entoli.equals(Message.SEARCH)) {
                 System.out.println("H entoli pou elava einai SEARCH");
                 // o client einai player
+                String betCategory = in.readLine();
+                String riskLevel = in.readLine();
+                String minStars = in.readLine();
+                List<String> apotelesmata = new ArrayList<>();
+                for(int i =0; i<workerHosts.size(); i++){
+                Socket workerSocket = new Socket(workerHosts.get(i),workerPorts.get(i));
+                ObjectOutputStream workerOUT = new ObjectOutputStream(workerSocket.getOutputStream());
+                ObjectInputStream workerIn = new ObjectInputStream(workerSocket.getInputStream());
+                 // stelnw filtra
+                workerOUT.writeObject(Message.SEARCH);
+                workerOUT.writeObject(betCategory);
+                workerOUT.writeObject(riskLevel);
+                workerOUT.writeObject(minStars);
+                  // diabazw apotelesmata mexri END
+                String line = (String) workerIn.readObject();
+                while (!line.equals(Message.END)) {
+                    apotelesmata.add(line);  // apo8hkeuw ka8e pedio
+                    line = (String) workerIn.readObject();
+        }
+        workerSocket.close();
 
-            } else if (entoli.equals(Message.VOTE)) {
+ }  PrintWriter clienout = new PrintWriter(sock2.getOutputStream(),true);
+    for(String a:apotelesmata){
+        clienout.println(a);
+
+    }
+    clienout.println(Message.END);   
+} else if (entoli.equals(Message.VOTE)) {
                 String GameName = in.readLine();
                 String Stars = in.readLine();
                 System.out.println("H entoli pou elava einai Rate");
                 //upologizoume se poio worker paei mesw hash
                 char protogramma = GameName.charAt(0);
                 int workerthesi = protogramma % workerHosts.size();
-                System.out.println("To game " + GameName + "paei ston worker " + workerthesi);\
+                System.out.println("To game " + GameName + "paei ston worker " + workerthesi);
                 //new socket gia worker
                 Socket workerSocket = new Socket(workerHosts.get(workerthesi),workerPorts.get(workerthesi));
                  //stelnw  dedomena se workerhandler 
-                PrintWriter workerOut = new PrintWriter(workerSocket.getOutputStream(), true);
-                workerOut.println(Message.VOTE);
-                workerOut.println(GameName);
-                workerOut.println(Stars);
-                 BufferedReader workerIn = new BufferedReader(new InputStreamReader(workerSocket.getInputStream()));
-                String apantisi = workerIn.readLine();
+                 ObjectOutputStream workerOut = new ObjectOutputStream(workerSocket.getOutputStream());
+                workerOut.writeObject((Message.VOTE));
+                workerOut.writeObject((GameName));
+                
+                workerOut.writeObject((Stars));
+                  ObjectInputStream workerIn = new ObjectInputStream(workerSocket.getInputStream());
+                String apantisi = (String)workerIn.readObject();
                 PrintWriter clientout = new PrintWriter(sock2.getOutputStream(),true);
                 clientout.println(apantisi);
                 //kleinw worker socket 
@@ -110,6 +140,20 @@ public class ClientHandler extends Thread {
                 // o client einai player 
             } else if (entoli.equals(Message.ADD_BALANCE)) {
                 System.out.println("H entoli pou elava einai ADD_BALANCE");
+                String PlayerId = in.readLine();
+                String amount = in.readLine();
+                for(int i=0; i<workerHosts.size(); i++){
+                     Socket workerSocket = new Socket(workerHosts.get(i), workerPorts.get(i));
+                    ObjectOutputStream workerOut = new ObjectOutputStream(workerSocket.getOutputStream());
+                     workerOut.writeObject(Message.ADD_BALANCE);
+                     workerOut.writeObject(PlayerId);
+                    workerOut.writeObject(amount);
+                    ObjectInputStream workerIn = new ObjectInputStream(workerSocket.getInputStream());
+                    String apantisi = (String) workerIn.readObject();
+                    workerSocket.close();
+                } PrintWriter clientout = new PrintWriter(sock2.getOutputStream(), true);
+                clientout.println(Message.OK);
+                
 
             } else if (entoli.equals(Message.UPDATE_RISK)) {
                 System.out.println("H entoli pou elava einai UPDATE_RISK");
@@ -121,12 +165,12 @@ public class ClientHandler extends Thread {
                 int workerthesi = protogramma % workerHosts.size();
                 System.out.println("To game " + GameName + "paei ston worker " + workerthesi);
                 Socket workerSocket = new Socket(workerHosts.get(workerthesi),workerPorts.get(workerthesi));
-                PrintWriter workerOut = new PrintWriter(workerSocket.getOutputStream(), true);
-                workerOut.println(Message.UPDATE_RISK);
-                workerOut.println(GameName);
-                workerOut.println(riskLevel);
-                BufferedReader workerIn = new BufferedReader(new InputStreamReader(workerSocket.getInputStream()));
-                String apantisi = workerIn.readLine();
+                ObjectOutputStream workerOut = new ObjectOutputStream(workerSocket.getOutputStream());
+                workerOut.writeObject((Message.UPDATE_RISK));
+                workerOut.writeObject((GameName));
+                workerOut.writeObject((riskLevel));
+                ObjectInputStream workerIn = new ObjectInputStream(workerSocket.getInputStream());
+                String apantisi = (String) workerIn.readObject();
                 PrintWriter clientout = new PrintWriter(sock2.getOutputStream(),true);
                 clientout.println(apantisi);
                 workerSocket.close();
@@ -142,6 +186,21 @@ public class ClientHandler extends Thread {
                 char protogramma = GameName.charAt(0);
                 int workerthesi = protogramma % workerHosts.size();
                 System.out.println("To game " + GameName + "paei ston worker " + workerthesi);
+                 Socket workerSocket = new Socket(workerHosts.get(workerthesi),workerPorts.get(workerthesi));
+                ObjectOutputStream workerOut = new ObjectOutputStream(workerSocket.getOutputStream());
+                workerOut.writeObject((Message.PLAY));
+                workerOut.writeObject((playerId));   // prwta playerId
+                workerOut.writeObject((GameName));   // meta GameName
+                workerOut.writeObject((betAmount));
+               ObjectInputStream workerIn = new ObjectInputStream(workerSocket.getInputStream());
+                String apantisi = (String) workerIn.readObject();           //kanw casting 
+                double apantisi2 = (double) workerIn.readObject();
+                String apantisi3 = (String) workerIn.readObject();
+                PrintWriter clientout = new PrintWriter(sock2.getOutputStream(),true);
+                clientout.println(apantisi);
+                clientout.println(String.valueOf(apantisi2));
+                clientout.println(apantisi3);
+                workerSocket.close();
             }
 
         } catch (Exception e) {
