@@ -30,7 +30,7 @@ public class Worker{
             System.out.println("Worker is listening on port " + port);
             while(true){ //o worker akouei synexeia gia nea connections 
                 Socket clientSocket = serverSocket.accept(); //perimenei mexri o master na synde8ei, mplokarei mexri na er8ei connection
-                WorkerHandler handler = new WorkerHandler(clientSocket, storage, srgHost, srgPort); //otan er8ei connection, neo thread gia diaxeirhsh 
+                WorkerHandler handler = new WorkerHandler(clientSocket, storage, srgHost, srgPort, reducerHost, reducerPort); //otan er8ei connection, neo thread gia diaxeirhsh 
                 Thread t = new Thread(handler); //neo thread gia diaxeirhsh
                 t.start();
             }
