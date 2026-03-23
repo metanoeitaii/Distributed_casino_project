@@ -29,6 +29,7 @@ public class SRGClient implements Runnable{
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
         ) {
             out.writeObject(secret); //otan ginei connection, stelnw to hashkey gia na jerei o SRG gia poio game kanei numbers
+            out.flush();
 
             while(true){ //trexei synexeia, pairnei ari8mous kai gemizei to buffer
                 String numberStr = (String) in.readObject(); //diabazei to random number poy esteile o SRG
