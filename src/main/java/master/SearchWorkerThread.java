@@ -12,8 +12,8 @@ public class SearchWorkerThread  extends Thread{
     private SearchState state;//koino object
       public SearchWorkerThread(String workerHost, int workerPort, String betCategory, String riskLevel, String minStars, SearchState state) {
         this.workerHost = workerHost;
-        this.workerport = workerport;
-        this.BetCategory = BetCategory;
+        this.workerport = workerPort;
+        this.BetCategory = betCategory;
         this.riskLevel = riskLevel;
         this.minStars = minStars;
         this.state = state;

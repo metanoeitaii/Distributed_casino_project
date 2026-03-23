@@ -24,9 +24,7 @@ public class MasterServer {
         Socket sock2 =serverSocket.accept();
         System.out.println("O client sindethike");
         ClientHandler handler = new ClientHandler(sock2,workerHosts,workerPorts);
-        Thread t = new Thread();
-        t.start();
-                
+        handler.start();
                 
                 
           

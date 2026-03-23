@@ -4,5 +4,6 @@ common\Bet.class
 common\RiskTables.class
 manager\Manager.class
 srg\SRGClient.class
+worker\WorkerStorage.class
 common\Player.class
 common\Message.class
