@@ -1,12 +1,8 @@
-manager\Manager.class
 srg\RandomNumberBuffer.class
-srg\SRGClient.class
-worker\Worker.class
-master\MasterServer.class
-worker\WorkerStorage.class
-common\Player.class
 common\Game.class
-common\Message.class
 common\Bet.class
-worker\WorkerHandler.class
 common\RiskTables.class
+manager\Manager.class
+srg\SRGClient.class
+common\Player.class
+common\Message.class

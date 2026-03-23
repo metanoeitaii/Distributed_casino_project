@@ -91,31 +91,33 @@ public class ClientHandler extends Thread {
                 String betCategory = in.readLine();
                 String riskLevel = in.readLine();
                 String minStars = in.readLine();
-                List<String> apotelesmata = new ArrayList<>();
-                for(int i =0; i<workerHosts.size(); i++){
-                Socket workerSocket = new Socket(workerHosts.get(i),workerPorts.get(i));
-                ObjectOutputStream workerOUT = new ObjectOutputStream(workerSocket.getOutputStream());
-                ObjectInputStream workerIn = new ObjectInputStream(workerSocket.getInputStream());
-                 // stelnw filtra
-                workerOUT.writeObject(Message.SEARCH);
-                workerOUT.writeObject(betCategory);
-                workerOUT.writeObject(riskLevel);
-                workerOUT.writeObject(minStars);
-                  // diabazw apotelesmata mexri END
-                String line = (String) workerIn.readObject();
-                while (!line.equals(Message.END)) {
-                    apotelesmata.add(line);  // apo8hkeuw ka8e pedio
-                    line = (String) workerIn.readObject();
-        }
-        workerSocket.close();
+                SearchState state = new SearchState(workerHosts.size());
+                   // jekinaw ena thread gia kathe worker
+                for (int i = 0; i < workerHosts.size(); i++) {
+                    SearchWorkerThread thread = new SearchWorkerThread(
+                        workerHosts.get(i), workerPorts.get(i),
+                        betCategory, riskLevel, minStars, state
+                    );
+                    thread.start();
+                
+                }
+                //perimenw na teliosoun oloi oi workers
+                state.perimenw_finishworkers();
 
- }  PrintWriter clienout = new PrintWriter(sock2.getOutputStream(),true);
-    for(String a:apotelesmata){
-        clienout.println(a);
+                //stelnw apotelesmata ston client
+                PrintWriter clientout = new PrintWriter(sock2.getOutputStream(),true);
+                List <String> apotelesmata = state.getApotelesmataa();
+                for(String a:apotelesmata){
+                    clientout.println(a);
 
-    }
-    clienout.println(Message.END);   
-} else if (entoli.equals(Message.VOTE)) {
+                }
+                clientout.print(Message.END);
+            }
+
+
+
+                
+                else if (entoli.equals(Message.VOTE)) {
                 String GameName = in.readLine();
                 String Stars = in.readLine();
                 System.out.println("H entoli pou elava einai Rate");

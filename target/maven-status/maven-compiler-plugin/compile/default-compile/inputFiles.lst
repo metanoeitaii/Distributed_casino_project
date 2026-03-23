@@ -4,9 +4,17 @@ C:\Users\aazaa\Desktop\Distributed_Casino_project\src\main\java\common\Message.j
 C:\Users\aazaa\Desktop\Distributed_Casino_project\src\main\java\common\Player.java
 C:\Users\aazaa\Desktop\Distributed_Casino_project\src\main\java\common\RiskTables.java
 C:\Users\aazaa\Desktop\Distributed_Casino_project\src\main\java\manager\Manager.java
+C:\Users\aazaa\Desktop\Distributed_Casino_project\src\main\java\master\ClientHandler.java
 C:\Users\aazaa\Desktop\Distributed_Casino_project\src\main\java\master\MasterServer.java
+C:\Users\aazaa\Desktop\Distributed_Casino_project\src\main\java\master\SearchState.java
+C:\Users\aazaa\Desktop\Distributed_Casino_project\src\main\java\master\SearchWorkerThread.java
+C:\Users\aazaa\Desktop\Distributed_Casino_project\src\main\java\reducer\ReducerServer.java
+C:\Users\aazaa\Desktop\Distributed_Casino_project\src\main\java\reducer\ReducerState.java
+C:\Users\aazaa\Desktop\Distributed_Casino_project\src\main\java\reducer\ReducerWorkerHandler.java
 C:\Users\aazaa\Desktop\Distributed_Casino_project\src\main\java\srg\RandomNumberBuffer.java
 C:\Users\aazaa\Desktop\Distributed_Casino_project\src\main\java\srg\SRGClient.java
+C:\Users\aazaa\Desktop\Distributed_Casino_project\src\main\java\srg\SRGServer.java
+C:\Users\aazaa\Desktop\Distributed_Casino_project\src\main\java\srg\SRGWorkerHandler.java
 C:\Users\aazaa\Desktop\Distributed_Casino_project\src\main\java\worker\Worker.java
 C:\Users\aazaa\Desktop\Distributed_Casino_project\src\main\java\worker\WorkerHandler.java
 C:\Users\aazaa\Desktop\Distributed_Casino_project\src\main\java\worker\WorkerStorage.java
