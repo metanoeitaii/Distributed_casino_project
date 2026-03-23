@@ -58,6 +58,7 @@ public class ClientHandler extends Thread {
                 workerOut.writeObject(maxBet);
                 workerOut.writeObject(riskLevel);
                 workerOut.writeObject(HashKey);
+                workerOut.flush();
                ObjectInputStream workerIn = new ObjectInputStream(workerSocket.getInputStream());
                 String apantisii = (String)workerIn.readObject();
                 PrintWriter clientout = new PrintWriter(sock2.getOutputStream(),true);
@@ -78,6 +79,7 @@ public class ClientHandler extends Thread {
                 ObjectOutputStream workerOut = new ObjectOutputStream(workerSocket.getOutputStream());
                 workerOut.writeObject(Message.REMOVE_GAME);
                 workerOut.writeObject(GameName);
+                workerOut.flush();
                ObjectInputStream workerIn = new ObjectInputStream(workerSocket.getInputStream());
                 String apantisi = (String)workerIn.readObject();
                 PrintWriter clientout = new PrintWriter(sock2.getOutputStream(),true);
@@ -111,7 +113,7 @@ public class ClientHandler extends Thread {
                     clientout.println(a);
 
                 }
-                clientout.print(Message.END);
+                clientout.println(Message.END);
             }
 
 
@@ -133,6 +135,7 @@ public class ClientHandler extends Thread {
                 workerOut.writeObject((GameName));
                 
                 workerOut.writeObject((Stars));
+                workerOut.flush();
                   ObjectInputStream workerIn = new ObjectInputStream(workerSocket.getInputStream());
                 String apantisi = (String)workerIn.readObject();
                 PrintWriter clientout = new PrintWriter(sock2.getOutputStream(),true);
@@ -150,6 +153,7 @@ public class ClientHandler extends Thread {
                      workerOut.writeObject(Message.ADD_BALANCE);
                      workerOut.writeObject(PlayerId);
                     workerOut.writeObject(amount);
+                    workerOut.flush();
                     ObjectInputStream workerIn = new ObjectInputStream(workerSocket.getInputStream());
                     String apantisi = (String) workerIn.readObject();
                     workerSocket.close();
@@ -171,6 +175,7 @@ public class ClientHandler extends Thread {
                 workerOut.writeObject((Message.UPDATE_RISK));
                 workerOut.writeObject((GameName));
                 workerOut.writeObject((riskLevel));
+                workerOut.flush();
                 ObjectInputStream workerIn = new ObjectInputStream(workerSocket.getInputStream());
                 String apantisi = (String) workerIn.readObject();
                 PrintWriter clientout = new PrintWriter(sock2.getOutputStream(),true);
@@ -194,6 +199,7 @@ public class ClientHandler extends Thread {
                 workerOut.writeObject((playerId));   // prwta playerId
                 workerOut.writeObject((GameName));   // meta GameName
                 workerOut.writeObject((betAmount));
+                workerOut.flush();
                ObjectInputStream workerIn = new ObjectInputStream(workerSocket.getInputStream());
                 String apantisi = (String) workerIn.readObject();           //kanw casting 
                 double apantisi2 = (double) workerIn.readObject();

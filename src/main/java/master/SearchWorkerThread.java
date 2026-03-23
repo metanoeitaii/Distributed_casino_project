@@ -28,11 +28,11 @@ public class SearchWorkerThread  extends Thread{
         workerOut.writeObject(BetCategory);
         workerOut.writeObject(riskLevel);
         workerOut.writeObject(minStars);
-        //diabazw apotelesmata mexri END
-        String line = (String) workerIn.readObject();
-        while (!line.equals(Message.END)) {
-            state.addApotel(line);//bazw sto koino state
-            line = (String) workerIn.readObject();
+        //diabazw apotelesmata mexri END ws object
+        Object obj = workerIn.readObject();
+        while (!Message.END.equals(obj)) {
+            state.addApotel(String.valueOf(obj));
+            obj =  workerIn.readObject();
         }
 
         workerSocket.close();
