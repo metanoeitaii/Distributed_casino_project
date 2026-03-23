@@ -114,6 +114,39 @@ public class ClientHandler extends Thread {
 
                 }
                 clientout.println(Message.END);
+            }else if (entoli.equals(Message.MAP)){
+                System.out.println("H entoli pou elava einai MAP");
+                String typosMap = in.readLine();
+                //sunedomai me reducer 
+                Socket reducerSocket = new Socket("localhost",2000);
+                ObjectOutputStream reducerout = new ObjectOutputStream(reducerSocket.getOutputStream());
+                reducerout.writeObject(workerHosts.size());
+                reducerout.flush();
+
+                //stelnw map se olous tous workers 
+                for(int i=0; i<workerHosts.size(); i++){
+                    Socket workerSocket = new Socket(workerHosts.get(i),workerPorts.get(i))
+                       ObjectOutputStream workerOut = new ObjectOutputStream(workerSocket.getOutputStream());
+                        workerOut.writeObject(Message.MAP);
+                        workerOut.writeObject(typosMap);
+                        workerOut.flush();
+                        ObjectInputStream workerIn = new ObjectInputStream(workerSocket.getInputStream());
+                        String apantisi = (String) workerIn.readObject();
+                        workerSocket.close();
+                }   // diabazw apotelesmata apo reducer
+                        ObjectInputStream reducerIn = new ObjectInputStream(reducerSocket.getInputStream());
+                        PrintWriter clientout = new PrintWriter(sock2.getOutputStream(), true);
+                 Object obj = reducerIn.readObject();
+                    while (!obj.equals(Message.END)) {
+                        String key = (String) obj;
+                        Double value = (Double) reducerIn.readObject();
+                        clientout.println(key + ": " + value);
+                        obj = reducerIn.readObject();
+                    }
+                    clientout.println(Message.END);
+
+                    reducerSocket.close();
+
             }
 
 
