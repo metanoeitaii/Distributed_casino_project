@@ -98,6 +98,7 @@ public class WorkerHandler implements Runnable{
         game.initSRG(srgHost, srgPort); //jekinaei SRG client
         storage.addGame(game); //apo8hkeysh game sto hashmap
         out.writeObject(Message.OK); //eidopoihsh master oti ola kala 
+        out.flush();
     }
 
     private void handleRemoveGame(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException {
@@ -106,11 +107,13 @@ public class WorkerHandler implements Runnable{
 
         if(game == null){ //an den yparxei stelnoume error
             out.writeObject(Message.ERROR + ": GAME NOT FOUND");
+            out.flush();
             return;
         }
 
         storage.removeGame(GameName); //isActive = false, de svhnoyme stoixeia 
         out.writeObject(Message.OK); //ola kala se master 
+        out.flush();
     }
 
     private void handleUpdateRisk(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException{
@@ -120,11 +123,13 @@ public class WorkerHandler implements Runnable{
 
         if(game == null){
             out.writeObject(Message.ERROR + ": GAME NOT FOUND");
+            out.flush();
             return;
         }
 
         storage.updateRiskLevel(GameName, newRiskLevel); //allazw risk level kai ypologizw neo jackpot
         out.writeObject(Message.OK); //ola kala master
+        out.flush();
     }
 
     //psaxnei paixnidia basei filtrwn pou stelnei o player
@@ -158,8 +163,10 @@ public class WorkerHandler implements Runnable{
             out.writeObject(game.getRiskLevel());
             out.writeObject(game.getBetCategory());
             out.writeObject(game.getJackpot());
+            
         }
         out.writeObject(Message.END);
+        out.flush();
     }
 
     private void handlePlay(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException{
@@ -171,12 +178,14 @@ public class WorkerHandler implements Runnable{
         Game game = storage.getGame(GameName); //elegxos an yparxei to game sto storage 
         if(game == null || !game.isActive()){ //an den yparxei h an einai inactive -> error
             out.writeObject(Message.ERROR + ": GAME NOT FOUND");
+            out.flush();
             return;
         }
 
         //elegxos oriwn pontarismatos 
         if(betAmount < game.getMinBet() || betAmount > game.getMaxBet()){
             out.writeObject(Message.ERROR + ": BET AMOUNT IS OUTSIDE THE ALLOWED RANGE");
+            out.flush();
             return;
         }
 
@@ -184,6 +193,7 @@ public class WorkerHandler implements Runnable{
         boolean hasBalance = player.deductBalance(betAmount); //afairei to bet apo to balance, an den yparxei arketo balance -> false
         if(!hasBalance){ //an den exei arketo balance -> error
             out.writeObject(Message.ERROR + ": NOT ENOUGH BALANCE");
+            out.flush();
             return;
         }
 
@@ -193,6 +203,7 @@ public class WorkerHandler implements Runnable{
         }catch(InterruptedException e){ //an stravwsei kati -> error
             player.addBalance(betAmount); //epistrefei ta xrhmata prin fygei
             out.writeObject(Message.ERROR + ": COULD NOT GET RANDOM NUMBER");
+            out.flush();
             return;
         }
 
@@ -224,13 +235,17 @@ public class WorkerHandler implements Runnable{
         game.addProfitLoss(-result); //enhmerwsh esodwn game, antistrofo proshmo(to systhma kerdizei otan o player xanei)
         
         out.writeObject(Message.OK);
+        out.flush();
         out.writeObject(result);
+        out.flush();
 
         if(isJackpot){ //stelnw an htan jackpot 
             out.writeObject(Message.JACKPOT);
+            out.flush();
 
         }else{ //h kanoniko apotelesma 
             out.writeObject(Message.NORMAL);
+            out.flush();
         }
     }
 
@@ -248,17 +263,23 @@ public class WorkerHandler implements Runnable{
             for(Bet bet : bets){
                 if(mapType.equals("PROVIDER")){ // an 8eloyme query ana provider 
                     reducerOut.writeObject(bet.getProviderName()); //stelnoume provider name 
+                    reducerOut.flush();
                     reducerOut.writeObject(-bet.getResult()); //kai anti8eto proshmo
+                    reducerOut.flush();
                 }else if (mapType.equals("PLAYER")){ //an player
                     reducerOut.writeObject(bet.getPlayerId()); //playerId
+                    reducerOut.flush();
                     reducerOut.writeObject(-bet.getResult()); //kai result 
+                    reducerOut.flush();
                 }
             }
             reducerOut.writeObject(Message.END);
+            reducerOut.flush();
         }finally{
             reducerSocket.close(); //panta na kleinei
         }
         out.writeObject(Message.OK); //eidopoiw master ola kala 
+        out.flush();
     }
 
     private void handleAddBalance(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException{
@@ -268,6 +289,7 @@ public class WorkerHandler implements Runnable{
 
         storage.addBalance(playerId, amount); //pros8etei to poso sto balance toy player
         out.writeObject(Message.OK); //ola kala master
+        out.flush();
     }
 
     private void handleVote(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException{
@@ -278,16 +300,19 @@ public class WorkerHandler implements Runnable{
         if(
             Stars < 1 || Stars > 5){ //elegxos gia oria
             out.writeObject(Message.ERROR + ": STARS MUST BE BETWEEN 1 AND 5");
+            out.flush();
             return;
         }
 
         Game game = storage.getGame(GameName); //psaxnw an yparxei to game
         if(game == null){
             out.writeObject(Message.ERROR + ": GAME NOT FOUND");
+            out.flush();
             return;
         }
 
         game.addVote(Stars); //pros8etei nea pshfo kai ypologizei neo MO
         out.writeObject(Message.OK);
+        out.flush();
     }
 }
