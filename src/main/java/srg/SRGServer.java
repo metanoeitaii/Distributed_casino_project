@@ -6,7 +6,7 @@ import java.io.*;
 public class SRGServer {
 
     public static void main(String[] args) {
-        int port = 5000;
+        int port = Integer.parseInt(args[0]);//pairnei to port apo ta arguments
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {//gia na perimenei na syndethei o worker
             System.out.println("SRG Server started on port " + port);
