@@ -11,10 +11,13 @@ import common.Message;
 
 public class Test {
 
-    private static final String MASTER_IP = "localhost";//pou einai o master
-    private static final int MASTER_PORT = 1000;//port tou master
+    private static String MANAGER_IP;//pou einai o manager
+    private static int MANAGER_PORT;//port tou manager
 
     public static void main(String[] args) {
+        MANAGER_IP = args[0];//pou einai o manager
+        MANAGER_PORT = Integer.parseInt(args[1]);//port tou manager
+        
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("====================================");
@@ -85,7 +88,7 @@ public class Test {
         }
 
         try (
-            Socket socket = new Socket(MASTER_IP, MASTER_PORT);//tcp syndesh me master
+            Socket socket = new Socket(MANAGER_IP, MANAGER_PORT);//tcp syndesh me master
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
         ) {
@@ -96,10 +99,10 @@ public class Test {
             out.writeObject(minStars);
             out.flush();
 
-            List<GameSearchResult> results = new ArrayList<>();//lista pou tha krataei ta apotelesmata poy epistrefei o master
+            List<GameSearchResult> results = new ArrayList<>();//lista pou tha krataei ta apotelesmata poy epistrefei o manager
 
-            while (true) {//teleixnei otan o master steilei END
-                String firstField = (String) in.readObject();//diavazei to proto pedio pou stelnei o master(END h game name)
+            while (true) {//teleixnei otan o manager steilei END
+                String firstField = (String) in.readObject();//diavazei to proto pedio pou stelnei o manager(END h game name)
 
                 if (firstField.equals(Message.END)) {
                     break;
@@ -157,7 +160,7 @@ public class Test {
         String amount = scanner.nextLine().trim();
 
         try (
-            Socket socket = new Socket(MASTER_IP, MASTER_PORT);//tcp syndesh me master
+            Socket socket = new Socket(MANAGER_IP, MANAGER_PORT);//tcp syndesh me master
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
         ) {
@@ -190,7 +193,7 @@ public class Test {
         String betAmount = scanner.nextLine().trim();
 
         try (
-            Socket socket = new Socket(MASTER_IP, MASTER_PORT);//tcp syndesh me master
+            Socket socket = new Socket(MANAGER_IP, MANAGER_PORT);//tcp syndesh me master
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
         ) {
@@ -244,7 +247,7 @@ public class Test {
         String stars = scanner.nextLine().trim();
 
         try (
-            Socket socket = new Socket(MASTER_IP, MASTER_PORT);//tcp syndesh me master
+            Socket socket = new Socket(MANAGER_IP, MANAGER_PORT);//tcp syndesh me master
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
         ) {
