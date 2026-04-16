@@ -11,10 +11,13 @@ import common.Message;
 
 public class Test {
 
-    private static final String MASTER_IP = "localhost";//pou einai o master
-    private static final int MASTER_PORT = 1000;//port tou master
+    private static String ClientHANDLER_IP;//pou einai o client handler
+    private static int ClientHandler_PORT ;//port tou client handler
 
     public static void main(String[] args) {
+        ClientHANDLER_IP = args[0];//pou einai o client handler
+        ClientHandler_PORT = Integer.parseInt(args[1]);//port tou client handler
+
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("====================================");
@@ -85,21 +88,21 @@ public class Test {
         }
 
         try (
-            Socket socket = new Socket(MASTER_IP, MASTER_PORT);//tcp syndesh me master
+            Socket socket = new Socket(ClientHANDLER_IP, ClientHandler_PORT);//tcp syndesh me client handler
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
         ) {
-            //auta stelnontai ston master gia na kanei search me ta sygkekrimena filters
+            //auta stelnontai ston client handler gia na kanei search me ta sygkekrimena filters
             out.writeObject(Message.SEARCH);
             out.writeObject(betCategory);
             out.writeObject(riskLevel);
             out.writeObject(minStars);
             out.flush();
 
-            List<GameSearchResult> results = new ArrayList<>();//lista pou tha krataei ta apotelesmata poy epistrefei o master
+            List<GameSearchResult> results = new ArrayList<>();//lista pou tha krataei ta apotelesmata poy epistrefei o manager
 
-            while (true) {//teleixnei otan o master steilei END
-                String firstField = (String) in.readObject();//diavazei to proto pedio pou stelnei o master(END h game name)
+            while (true) {//teleixnei otan o client handler steilei END
+                String firstField = (String) in.readObject();//diavazei to proto pedio pou stelnei o manager(END h game name)
 
                 if (firstField.equals(Message.END)) {
                     break;
@@ -157,17 +160,17 @@ public class Test {
         String amount = scanner.nextLine().trim();
 
         try (
-            Socket socket = new Socket(MASTER_IP, MASTER_PORT);//tcp syndesh me master
+            Socket socket = new Socket(ClientHANDLER_IP, ClientHandler_PORT);//tcp syndesh me master
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
         ) {
-            //stelnoyme ston master ta aparaitita gia na kanei Add Balance
+            //stelnoyme ston client handler ta aparaitita gia na kanei Add Balance
             out.writeObject(Message.ADD_BALANCE);
             out.writeObject(playerId);
             out.writeObject(amount);
             out.flush();
 
-            String status = (String) in.readObject();//(OK h ERROR) pou epistrefei o master
+            String status = (String) in.readObject();//(OK h ERROR) pou epistrefei o client handler
             
             if (!status.equals(Message.OK)) {
                 System.out.println("Something went wrong: " + status);
@@ -190,18 +193,18 @@ public class Test {
         String betAmount = scanner.nextLine().trim();
 
         try (
-            Socket socket = new Socket(MASTER_IP, MASTER_PORT);//tcp syndesh me master
+            Socket socket = new Socket(ClientHANDLER_IP, ClientHandler_PORT);//tcp syndesh me client handler
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
         ) {
-            //stelnoyme ston master ta aparaitita gia na kanei Play
+            //stelnoyme ston client handler ta aparaitita gia na kanei Play
             out.writeObject(Message.PLAY);
             out.writeObject(gameName);
             out.writeObject(playerId);
             out.writeObject(betAmount);
             out.flush();
 
-            String status = (String) in.readObject();//(OK h ERROR) pou epistrefei o master 
+            String status = (String) in.readObject();//(OK h ERROR) pou epistrefei o client handler 
 
             if (!status.equals(Message.OK)) {
                 System.out.println("Something went wrong: " + status);
@@ -244,17 +247,17 @@ public class Test {
         String stars = scanner.nextLine().trim();
 
         try (
-            Socket socket = new Socket(MASTER_IP, MASTER_PORT);//tcp syndesh me master
+            Socket socket = new Socket(ClientHANDLER_IP, ClientHandler_PORT);//tcp syndesh me client handler
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
         ) {
-            //stelnoyme ston master ta aparaitita gia na kanei Vote
+            //stelnoyme ston client handler ta aparaitita gia na kanei Vote
             out.writeObject(Message.VOTE);
             out.writeObject(gameName);
             out.writeObject(stars);
             out.flush();
 
-            String status = (String) in.readObject();//(OK h ERROR) pou epistrefei o master
+            String status = (String) in.readObject();//(OK h ERROR) pou epistrefei o client handler
             System.out.println("The status of your vote is: " + status);
 
         } catch (Exception e) {
@@ -263,7 +266,7 @@ public class Test {
         }
     }
 
-    private static class GameSearchResult {//gia na krataei ta stoixia enos game poy epistrefei o master otan kanei search
+    private static class GameSearchResult {//gia na krataei ta stoixia enos game poy epistrefei o client handler otan kanei search
         String gameName;
         String providerName;
         String gameLogo;
