@@ -32,7 +32,7 @@ public class ReducerServer {
                 
                 ReducerState state = new ReducerState(expectedWorkers);//koino state pou krataei ta apotelesmata kai tis plirofories gia tous workers
 
-                for (int i = 0; i < 1; i++) {
+                for (int i = 0; i < expectedWorkers; i++) {
                     Socket workerSocket = serverSocket.accept();//worker syndeetai me ton reducer
                     System.out.println("Worker connected to reducer");
 
