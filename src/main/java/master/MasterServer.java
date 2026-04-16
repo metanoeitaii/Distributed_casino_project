@@ -16,7 +16,7 @@ public class MasterServer {
     ServerSocket serverSocket = new ServerSocket(clientport);
    
     System.out.println("Perimenoume gia clients sto port 1000");
-    workerHosts.add("192.168.bla.bla");
+    workerHosts.add("localhost");
     workerPorts.add(1001);
     System.out.println("Sundesh sto worker 1");
     //loop gia na dexetai pollous clients

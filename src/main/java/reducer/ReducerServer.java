@@ -32,7 +32,7 @@ public class ReducerServer {
                 
                 ReducerState state = new ReducerState(expectedWorkers);//koino state pou krataei ta apotelesmata kai tis plirofories gia tous workers
 
-                for (int i = 0; i < expectedWorkers; i++) {
+                for (int i = 0; i < 1; i++) {
                     Socket workerSocket = serverSocket.accept();//worker syndeetai me ton reducer
                     System.out.println("Worker connected to reducer");
 
@@ -64,7 +64,14 @@ public class ReducerServer {
     }
 
  public static void main(String[] args) {
-        int reducerPort = 2000;
+        if (args.length < 1) {
+            System.out.println("Sfalma: Parakalw dwste to port tou Reducer ws orisma!");
+            System.out.println("Paradeigma: java reducer.ReducerServer 2000");
+            return;
+        }
+
+        // Παίρνουμε το port δυναμικά από τα ορίσματα (args)
+        int reducerPort = Integer.parseInt(args[0]);
 
         ReducerServer server = new ReducerServer(reducerPort);
         server.start();
