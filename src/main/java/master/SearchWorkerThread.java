@@ -3,6 +3,8 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 import common.Message;
+
+// stelnei search request se enan worker kai syllegei apotelesmata 
 public class SearchWorkerThread  extends Thread{
     private String workerHost;
     private int workerport;
