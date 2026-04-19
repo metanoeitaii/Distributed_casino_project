@@ -1,24 +1,24 @@
-//paixnidi sto systhma 
 package common;
 import srg.*;
 import java.io.Serializable;
 
+// ena game sto sytsthma 
 public class Game implements Serializable{
 
-    private String GameName; //monadiko onoma game
-    private String ProviderName; //onoma paroxou
-    private double Stars; //MO ba8mologias
-    private int NoOfVotes; //plh8os pshfwn (gia epanaypologismo)
-    private String GameLogo; //path logotypou
-    private double MinBet; //min pontarisma
-    private double MaxBet; //max pontarisma
-    private String RiskLevel; //epipedo riskou (low, medium, high)
-    private String HashKey; //mystiko kleidi gia epalh8eush me ton SRG
-    private String betCategory; //kathgoria pontarismatos ($/$$/$$$)
-    private int jackpot; //timh jackpot, analoga me RiskLevel
-    private boolean isActive; //false, an o manager ekane remove to game 
-    private double totalProfitLoss; //total kerdh/zhmies systhmatos apo to game
-    private RandomNumberBuffer randomBuffer; //buffer random ari8mwn poy trofodoteitai apo SRG
+    private String GameName;
+    private String ProviderName; 
+    private double Stars; // MO ba8mologias 
+    private int NoOfVotes; 
+    private String GameLogo; 
+    private double MinBet; 
+    private double MaxBet; 
+    private String RiskLevel; 
+    private String HashKey; 
+    private String betCategory; // $/$$/$$$
+    private int jackpot;
+    private boolean isActive; 
+    private double totalProfitLoss; 
+    private RandomNumberBuffer randomBuffer;
 
     //Constructor: game me JSON stoixeia
     public Game(String GameName , String ProviderName, double Stars, int NoOfVotes, String GameLogo, double MinBet, double MaxBet, String RiskLevel, String HashKey){
@@ -108,8 +108,8 @@ public class Game implements Serializable{
     //jekina SRG Client gia to game
     public void initSRG(String srgHost, int srgPort){
         randomBuffer = new RandomNumberBuffer(10); //buffer me capacity 10 numbers
-        SRGClient client = new SRGClient(srgHost, srgPort, HashKey, randomBuffer); //dhmioyrgei ton SRG client poy 8a synde8ei me SRG server
-        Thread t = new Thread(client); //se jexwristo thread 
+        SRGClient client = new SRGClient(srgHost, srgPort, HashKey, randomBuffer); 
+        Thread t = new Thread(client); 
         t.setDaemon(true); // stamataei aytomata otan teleiwsei to kyrio programma
         t.start();
     }
