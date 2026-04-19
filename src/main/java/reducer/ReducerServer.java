@@ -10,7 +10,7 @@ import common.Message;
 
 public class ReducerServer {
 
-    private int reducerPort;//port pou akouei o reducer gia na syndethei me tous workers
+    private int reducerPort;
     
     public ReducerServer(int reducerPort) {
         this.reducerPort = reducerPort;
