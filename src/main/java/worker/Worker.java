@@ -1,7 +1,7 @@
 package worker;
 
-import java.net.*; //ServerSocket, Socket
-import java.io.*; // gia IOException
+import java.net.*; 
+import java.io.*; 
 import common.*;
 import srg.*;
 
@@ -15,23 +15,23 @@ public class Worker{
     private int reducerPort;
 
     public Worker(int port, String srgHost, int srgPort, String reducerHost, int reducerPort){
-        this.port = port; //port poy akoyei o worker
+        this.port = port; 
         this.srgHost = srgHost;
         this.srgPort = srgPort; 
         this.reducerHost = reducerHost;
         this.reducerPort = reducerPort;
-        this.storage = new WorkerStorage(); //to in-memory storage poy ekana , ftiaxnw ena adeio
+        this.storage = new WorkerStorage(); 
 
     }
 
     public void start(){
-        //kleinei to serverSocket otan teleiwsei
-        try (ServerSocket serverSocket = new ServerSocket(port)){ //anoigw akroath (serverSocket) sto port 
+        try (ServerSocket serverSocket = new ServerSocket(port)){ 
             System.out.println("Worker is listening on port " + port);
-            while(true){ //o worker akouei synexeia gia nea connections 
-                Socket clientSocket = serverSocket.accept(); //perimenei mexri o master na synde8ei, mplokarei mexri na er8ei connection
-                WorkerHandler handler = new WorkerHandler(clientSocket, storage, srgHost, srgPort, reducerHost, reducerPort); //otan er8ei connection, neo thread gia diaxeirhsh 
-                Thread t = new Thread(handler); //neo thread gia diaxeirhsh
+            while(true){ 
+                Socket clientSocket = serverSocket.accept(); 
+                // neo thread gia ka8e connection
+                WorkerHandler handler = new WorkerHandler(clientSocket, storage, srgHost, srgPort, reducerHost, reducerPort);  gia diaxeirhsh 
+                Thread t = new Thread(handler); 
                 t.start();
             }
         } catch (IOException e){
@@ -39,8 +39,6 @@ public class Worker{
         }
 
     }
-
-    //gia an trexoume ton worker apo cmd 
     public static void main(String[] args){
         int port = Integer.parseInt(args[0]);
         String srgHost = args[1];       
