@@ -13,7 +13,7 @@ public class SRGWorkerHandler implements Runnable {
 
     public SRGWorkerHandler(Socket socket) {
         this.socket = socket;
-
+    }
     @Override
     public void run() {
 
