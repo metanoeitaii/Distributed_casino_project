@@ -1,6 +1,7 @@
 package common;
 import java.io.Serializable;
 
+// enas player sto systhma 
 public class Player implements Serializable{
     private String playerId;
     private double balance;
@@ -15,14 +16,11 @@ public class Player implements Serializable{
     public double getBalance() { return balance; }
 
     //pros8etei poso sto ypoloipo
-    //kaleitai apo WorkerStorage.addBalance() otan erxetai ADD_BALANCE request apo master 
-    //kaleitai apo handlePlay otan o player wins gia epistrofh kerdwn 
     public synchronized void addBalance(double amount){
         balance += amount;
     }
 
     //prin to bet afairei to poso, false an den yparxei arketo balance
-    //kaleitai apo handlePlay prin to bet gia na dei an exei arketo balance o player kai na to afairesei
     public synchronized boolean deductBalance(double amount){
         if(balance < amount){
             return false;
