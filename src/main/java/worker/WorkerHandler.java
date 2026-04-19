@@ -142,8 +142,8 @@ public class WorkerHandler implements Runnable{
 
         List<Game> results = new ArrayList<>(); //lista me ta results 
         for(Game game: storage.getActiveGames()){
-            if(betCategory.equals("ALL") || game.getBetCategory().equals(betCategory)){
-                if(RiskLevel.equals("ALL") || game.getRiskLevel().equalsIgnoreCase(RiskLevel)){
+            if(betCategory.equalsIgnoreCase("ALL") || game.getBetCategory().equals(betCategory)){
+                if(RiskLevel.equalsIgnoreCase("ALL") || game.getRiskLevel().equalsIgnoreCase(RiskLevel)){
                     if(game.getStars() >= minStars){
                         results.add(game);
                     }

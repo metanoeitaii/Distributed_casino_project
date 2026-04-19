@@ -199,11 +199,10 @@ public class Test {
         ) {
             //stelnoyme ston client handler ta aparaitita gia na kanei Play
             out.writeObject(Message.PLAY);
-            out.writeObject(gameName);
-            out.writeObject(playerId);
-            out.writeObject(betAmount);
+            out.writeObject(playerId);   
+            out.writeObject(gameName);   
+            out.writeObject(betAmount);  
             out.flush();
-
             String status = (String) in.readObject();//(OK h ERROR) pou epistrefei o client handler 
 
             if (!status.equals(Message.OK)) {
