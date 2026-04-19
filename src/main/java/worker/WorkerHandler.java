@@ -3,21 +3,19 @@ package worker;
 import common.Message;
 import java.util.List;
 import java.util.ArrayList;
-import java.net.*; //gia sockets
+import java.net.*; 
 import java.io.*;
 import common.*;
 import srg.*;
 
-//xeirizetai ka8e request apo master se jexwristo thread
 public class WorkerHandler implements Runnable{
-    private Socket socket; // socket connection me master 
-    private WorkerStorage storage; // to in-memory storage 
+    private Socket socket; 
+    private WorkerStorage storage;
     private String srgHost; 
     private int srgPort;
     private String reducerHost;
     private int reducerPort;
 
-    //pairnei to socket kai to storage apo ton Worker otan aytos dhmioyrgeitai
     public WorkerHandler(Socket socket, WorkerStorage storage, String srgHost, int srgPort, String reducerHost, int reducerPort){
         this.socket = socket;
         this.storage = storage;
@@ -36,7 +34,7 @@ public class WorkerHandler implements Runnable{
         ) {
             String requestType = (String) in.readObject();
 
-            switch(requestType){ //analoga ton typo toy request, pame se antistoixh me8odo
+            switch(requestType){ 
                 case Message.ADD_GAME:
                     handleAddGame(in, out);
                     break;
@@ -72,7 +70,6 @@ public class WorkerHandler implements Runnable{
 
     private void handleAddGame(ObjectInputStream in, ObjectOutputStream out) throws IOException, ClassNotFoundException {
         
-        //diabazei oti steilei o master 
         String GameName = (String) in.readObject();
         String ProviderName = (String) in.readObject();
 
@@ -93,33 +90,32 @@ public class WorkerHandler implements Runnable{
         String RiskLevel = (String) in.readObject();
         String HashKey = (String) in.readObject();
 
-        //ftiaxnei game object
         Game game = new Game(GameName, ProviderName, Stars, NoOfVotes, GameLogo, MinBet, MaxBet, RiskLevel, HashKey);
-        game.initSRG(srgHost, srgPort); //jekinaei SRG client
-        storage.addGame(game); //apo8hkeysh game sto hashmap
-        out.writeObject(Message.OK); //eidopoihsh master oti ola kala 
+        game.initSRG(srgHost, srgPort);
+        storage.addGame(game);
+        out.writeObject(Message.OK);
         out.flush();
     }
 
     private void handleRemoveGame(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException {
-        String GameName = (String) in.readObject(); //onoma game poy master 8elei na afairesei
-        Game game = storage.getGame(GameName); //psaxnw an yparxei to game sto storage 
+        String GameName = (String) in.readObject(); 
+        Game game = storage.getGame(GameName); 
 
-        if(game == null){ //an den yparxei stelnoume error
+        if(game == null){ 
             out.writeObject(Message.ERROR + ": GAME NOT FOUND");
             out.flush();
             return;
         }
 
-        storage.removeGame(GameName); //isActive = false, de svhnoyme stoixeia 
-        out.writeObject(Message.OK); //ola kala se master 
+        storage.removeGame(GameName); 
+        out.writeObject(Message.OK); 
         out.flush();
     }
 
     private void handleUpdateRisk(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException{
         String GameName = (String) in.readObject();
-        String newRiskLevel = (String) in.readObject(); //diabazw neo risk level
-        Game game = storage.getGame(GameName); //psaxnw an yparxei to game sto storage 
+        String newRiskLevel = (String) in.readObject(); 
+        Game game = storage.getGame(GameName); 
 
         if(game == null){
             out.writeObject(Message.ERROR + ": GAME NOT FOUND");
@@ -127,12 +123,11 @@ public class WorkerHandler implements Runnable{
             return;
         }
 
-        storage.updateRiskLevel(GameName, newRiskLevel); //allazw risk level kai ypologizw neo jackpot
-        out.writeObject(Message.OK); //ola kala master
+        storage.updateRiskLevel(GameName, newRiskLevel); 
+        out.writeObject(Message.OK);
         out.flush();
     }
 
-    //psaxnei paixnidia basei filtrwn pou stelnei o player
     private void handleSearch(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException {
         String betCategory = (String) in.readObject();
         String RiskLevel = (String) in.readObject();
@@ -140,7 +135,7 @@ public class WorkerHandler implements Runnable{
         String minStarsStr = (String) in.readObject();
         double minStars = Double.parseDouble(minStarsStr);
 
-        List<Game> results = new ArrayList<>(); //lista me ta results 
+        List<Game> results = new ArrayList<>();  
         for(Game game: storage.getActiveGames()){
             if(betCategory.equalsIgnoreCase("ALL") || game.getBetCategory().equals(betCategory)){
                 if(RiskLevel.equalsIgnoreCase("ALL") || game.getRiskLevel().equalsIgnoreCase(RiskLevel)){
@@ -151,7 +146,6 @@ public class WorkerHandler implements Runnable{
             }
         }
 
-        //stelnw ta stoixeia ka8e game
         for(Game game : results){
             out.writeObject(game.getGameName());
             out.writeObject(game.getProviderName());
@@ -170,56 +164,55 @@ public class WorkerHandler implements Runnable{
     }
 
     private void handlePlay(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException{
-        String playerId = (String) in.readObject(); //poios player paizei
-        String GameName = (String) in.readObject(); //se poio game
-        String betAmountStr = (String) in.readObject(); //posa pontarei
+        String playerId = (String) in.readObject(); 
+        String GameName = (String) in.readObject(); 
+        String betAmountStr = (String) in.readObject(); 
         double betAmount = Double.parseDouble(betAmountStr);
 
-        Game game = storage.getGame(GameName); //elegxos an yparxei to game sto storage 
-        if(game == null || !game.isActive()){ //an den yparxei h an einai inactive -> error
+        Game game = storage.getGame(GameName);
+        if(game == null || !game.isActive()){ 
             out.writeObject(Message.ERROR + ": GAME NOT FOUND");
             out.flush();
             return;
         }
 
-        //elegxos oriwn pontarismatos 
         if(betAmount < game.getMinBet() || betAmount > game.getMaxBet()){
             out.writeObject(Message.ERROR + ": BET AMOUNT IS OUTSIDE THE ALLOWED RANGE");
             out.flush();
             return;
         }
 
-        Player player = storage.getOrCreatePlayer(playerId); //briskei player h ton ftiaxnei an den yparxei
-        boolean hasBalance = player.deductBalance(betAmount); //afairei to bet apo to balance, an den yparxei arketo balance -> false
-        if(!hasBalance){ //an den exei arketo balance -> error
+        Player player = storage.getOrCreatePlayer(playerId); 
+        boolean hasBalance = player.deductBalance(betAmount); 
+        if(!hasBalance){
             out.writeObject(Message.ERROR + ": NOT ENOUGH BALANCE");
             out.flush();
             return;
         }
 
-        int randomNumber; //random number apo buffer
-        try{ // an einai adeio perimenei 
+        int randomNumber; 
+        try{ 
             randomNumber = game.getRandomNumber(); 
-        }catch(InterruptedException e){ //an stravwsei kati -> error
-            player.addBalance(betAmount); //epistrefei ta xrhmata prin fygei
+        }catch(InterruptedException e){ 
+            player.addBalance(betAmount); // epistrofh xrhmatwn se sfalma 
             out.writeObject(Message.ERROR + ": COULD NOT GET RANDOM NUMBER");
             out.flush();
             return;
         }
 
-        double multiplier; //syntelesths
-        boolean isJackpot = false; //arxika jackpot = false;
+        double multiplier; 
+        boolean isJackpot = false; 
 
-        if(randomNumber % 100 == 0){ //an to tyxaio number diareitai akrivws me to 100 -> jackpot 
-            multiplier = game.getJackpot(); // o syntelesths ginetai to jackpot toy game 
+        if(randomNumber % 100 == 0){  // jackpot 1/100 pi8anothta
+            multiplier = game.getJackpot();  
             isJackpot = true; //einai jackpot
         }else{
-            int index = randomNumber % 10; //an den eina jackpot, pairnw index 0-9 apo ton random number 
-            double[] table = RiskTables.getTable(game.getRiskLevel()); //pairnw ton pinaka riskou 
-            multiplier = table[index]; //pairnw ton syntelesth apo th 8esh toy index toy pinaka 
+            int index = randomNumber % 10;
+            double[] table = RiskTables.getTable(game.getRiskLevel()); 
+            multiplier = table[index];  
         }
 
-        //ypologizw kerdos an >0, h zhmia an <0
+        
         double winAmount = betAmount * multiplier;
         double result = winAmount - betAmount;
 
@@ -227,89 +220,87 @@ public class WorkerHandler implements Runnable{
             player.addBalance(winAmount);
         }
 
-
-        //neo bet object gia to istoriko
         Bet bet = new Bet(playerId, GameName, game.getProviderName(), betAmount, multiplier);
-        storage.addBet(bet); //apo8hkeysh bet sto betHistory gia ta mapReduce queries 
+        storage.addBet(bet); 
 
-        game.addProfitLoss(-result); //enhmerwsh esodwn game, antistrofo proshmo(to systhma kerdizei otan o player xanei)
+        game.addProfitLoss(-result); 
         
         out.writeObject(Message.OK);
         out.flush();
         out.writeObject(result);
         out.flush();
 
-        if(isJackpot){ //stelnw an htan jackpot 
+        if(isJackpot){ 
             out.writeObject(Message.JACKPOT);
             out.flush();
 
-        }else{ //h kanoniko apotelesma 
+        }else{ 
             out.writeObject(Message.NORMAL);
             out.flush();
         }
     }
 
     private void handleMap(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException{
-        String mapType = (String) in.readObject(); //ti eidous query 8elei o manager (provider / player)
+        String mapType = (String) in.readObject(); 
 
-        List<Bet> bets = storage.getBetHistory(); //ola ta bets poy eginan se ayton ton worker 
+        List<Bet> bets = storage.getBetHistory(); 
 
-        //syndesh me reducer
+        
         Socket reducerSocket = new Socket (reducerHost, reducerPort);
 
         try{
             ObjectOutputStream reducerOut = new ObjectOutputStream(reducerSocket.getOutputStream());
     
             for(Bet bet : bets){
-                if(mapType.equals("PROVIDER")){ // an 8eloyme query ana provider 
-                    reducerOut.writeObject(bet.getProviderName()); //stelnoume provider name 
+                if(mapType.equals("PROVIDER")){ 
+                    reducerOut.writeObject(bet.getProviderName());
                     reducerOut.flush();
-                    reducerOut.writeObject(-bet.getResult()); //kai anti8eto proshmo
+                    reducerOut.writeObject(-bet.getResult());
                     reducerOut.flush();
                 }else if (mapType.equals("PLAYER")){ //an player
-                    reducerOut.writeObject(bet.getPlayerId()); //playerId
+                    reducerOut.writeObject(bet.getPlayerId());
                     reducerOut.flush();
-                    reducerOut.writeObject(-bet.getResult()); //kai result 
+                    reducerOut.writeObject(-bet.getResult()); 
                     reducerOut.flush();
                 }
             }
             reducerOut.writeObject(Message.END);
             reducerOut.flush();
         }finally{
-            reducerSocket.close(); //panta na kleinei
+            reducerSocket.close();
         }
     }
 
     private void handleAddBalance(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException{
-        String playerId = (String) in.readObject(); //player poy 8elei na balei tokens
-        String amountStr = (String) in.readObject(); //poso poy 8elei na pros8esei
+        String playerId = (String) in.readObject(); 
+        String amountStr = (String) in.readObject();
         double amount = Double.parseDouble(amountStr);
 
-        storage.addBalance(playerId, amount); //pros8etei to poso sto balance toy player
-        out.writeObject(Message.OK); //ola kala master
+        storage.addBalance(playerId, amount); 
+        out.writeObject(Message.OK); 
         out.flush();
     }
 
     private void handleVote(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException{
-        String GameName = (String) in.readObject(); //onoma game gia rate
-        String starsStr = (String) in.readObject(); //rate 1-5
+        String GameName = (String) in.readObject(); 
+        String starsStr = (String) in.readObject(); 
         int Stars = Integer.parseInt(starsStr);
 
         if(
-            Stars < 1 || Stars > 5){ //elegxos gia oria
+            Stars < 1 || Stars > 5){ 
             out.writeObject(Message.ERROR + ": STARS MUST BE BETWEEN 1 AND 5");
             out.flush();
             return;
         }
 
-        Game game = storage.getGame(GameName); //psaxnw an yparxei to game
+        Game game = storage.getGame(GameName); 
         if(game == null){
             out.writeObject(Message.ERROR + ": GAME NOT FOUND");
             out.flush();
             return;
         }
 
-        game.addVote(Stars); //pros8etei nea pshfo kai ypologizei neo MO
+        game.addVote(Stars); 
         out.writeObject(Message.OK);
         out.flush();
     }
