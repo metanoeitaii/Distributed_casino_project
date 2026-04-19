@@ -8,6 +8,7 @@ import java.io.*;
 import common.*;
 import srg.*;
 
+// xeirizetai ka8e request apo ton master se jexwristo thread
 public class WorkerHandler implements Runnable{
     private Socket socket; 
     private WorkerStorage storage;
@@ -34,7 +35,7 @@ public class WorkerHandler implements Runnable{
         ) {
             String requestType = (String) in.readObject();
 
-            switch(requestType){ 
+            switch(requestType){ // dromologhsh request sth swsth method 
                 case Message.ADD_GAME:
                     handleAddGame(in, out);
                     break;
@@ -107,7 +108,7 @@ public class WorkerHandler implements Runnable{
             return;
         }
 
-        storage.removeGame(GameName); 
+        storage.removeGame(GameName); // isActive = false, de diagrafoyme dedomena 
         out.writeObject(Message.OK); 
         out.flush();
     }
@@ -223,7 +224,7 @@ public class WorkerHandler implements Runnable{
         Bet bet = new Bet(playerId, GameName, game.getProviderName(), betAmount, multiplier);
         storage.addBet(bet); 
 
-        game.addProfitLoss(-result); 
+        game.addProfitLoss(-result); // to systhma kerdizei otan o player xanei (antistrofo proshmo)
         
         out.writeObject(Message.OK);
         out.flush();
@@ -245,7 +246,7 @@ public class WorkerHandler implements Runnable{
 
         List<Bet> bets = storage.getBetHistory(); 
 
-        
+        // stelnei ta bets katey8eian ston reducer 
         Socket reducerSocket = new Socket (reducerHost, reducerPort);
 
         try{
