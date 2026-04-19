@@ -263,6 +263,11 @@ public class WorkerHandler implements Runnable{
                     reducerOut.flush();
                     reducerOut.writeObject(-bet.getResult()); 
                     reducerOut.flush();
+                }else if (mapType.equals("GAME")){         
+                    reducerOut.writeObject(bet.getGameName());
+                    reducerOut.flush();
+                    reducerOut.writeObject(-bet.getResult());
+                    reducerOut.flush();
                 }
             }
             reducerOut.writeObject(Message.END);
