@@ -270,6 +270,8 @@ public class WorkerHandler implements Runnable{
         }finally{
             reducerSocket.close();
         }
+        out.writeObject(Message.OK); 
+        out.flush();
     }
 
     private void handleAddBalance(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException{
