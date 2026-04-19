@@ -4,10 +4,11 @@ import java.net.Socket;
 import java.io.ObjectInputStream;
 import common.Message;
 
+// diaxeirhsh ths syndeshs me ena worker se jexwristo thread 
 public class ReducerWorkerHandler implements Runnable {//
 
-    private Socket socket;//gia na diavasei apo ton worker
-    private ReducerState state;//to koino object pou krataei ta apotelesmata kai tis plirofories gia tous workers
+    private Socket socket;
+    private ReducerState state;
 
     public ReducerWorkerHandler(Socket socket, ReducerState state) {
         this.socket = socket;
@@ -22,16 +23,15 @@ public class ReducerWorkerHandler implements Runnable {//
             while (true) {
                 Object obj = in.readObject();
 
-                if (obj instanceof String && ((String) obj).equals(Message.END)) {//otan o worker teleiwsei tha steilei to END gia na simainei oti teleiwse
-                    boolean allFinished = state.workerFinished();//otan o worker teleiwsei, elegxoume an oloklirose oles oi workers
-
-                    if (allFinished) {
+                if (obj instanceof String && ((String) obj).equals(Message.END)) {
+                    // eidopoiei to state oti aytos o worker teleiwse 
+                    if (state.workerFinished()) {
                         System.out.println("All workers finished.");
                     }
                     break;
                 }
 
-                String key = (String) obj;//an den einai END einai key 
+                String key = (String) obj;
                 Double value = (Double) in.readObject();
 
                 state.addPair(key, value);
