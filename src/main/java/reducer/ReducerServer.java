@@ -18,35 +18,34 @@ public class ReducerServer {
     
     public void start() {
 
-        try (ServerSocket serverSocket = new ServerSocket(reducerPort)) {//anoigei port
+        try (ServerSocket serverSocket = new ServerSocket(reducerPort)) {
             System.out.println("Reducer listening on port " + reducerPort);
 
-            while (true) {//den kleinei meta apo kathe request, menei anoixtos o server gia seiriaka polla request
+            while (true) {
                 System.out.println("Waiting for master...");
 
-                Socket masterSocket = serverSocket.accept();//syndeetai o master
+                Socket masterSocket = serverSocket.accept();
                 System.out.println("Master connected");
 
-                ObjectInputStream masterIn = new ObjectInputStream(masterSocket.getInputStream());//diavazei apo ton master to expectedWorkers
-                int expectedWorkers = (Integer) masterIn.readObject();//px 3 workers 
+                ObjectInputStream masterIn = new ObjectInputStream(masterSocket.getInputStream()); //diavazei apo ton master posoi workers 8a synde8oun
+                int expectedWorkers = (Integer) masterIn.readObject();
                 
                 ReducerState state = new ReducerState(expectedWorkers);//koino state pou krataei ta apotelesmata kai tis plirofories gia tous workers
 
                 for (int i = 0; i < expectedWorkers; i++) {
-                    Socket workerSocket = serverSocket.accept();//worker syndeetai me ton reducer
+                    Socket workerSocket = serverSocket.accept();
                     System.out.println("Worker connected to reducer");
 
-                    Thread t = new Thread(new ReducerWorkerHandler(workerSocket, state));//dimiourgeitai ena thread gia kathe worker pou syndeetai
+                    Thread t = new Thread(new ReducerWorkerHandler(workerSocket, state)); //thread gia kathe worker pou syndeetai
                     t.start();
                 }
 
-                state.waitUntilAllWorkersFinish();//mplokarei mexri na teleiwsoun oloi oi workers
+                state.waitUntilAllWorkersFinish(); //mplokarei mexri na teleiwsoun oloi oi workers
 
-                Map<String, Double> finalTotal = state.getTotalsCopy();//pairnei ta apotelesmata apo to state
-
-                ObjectOutputStream masterOut  = new ObjectOutputStream(masterSocket.getOutputStream());//gia na steilei ta apotelesmata ston master
-
-                for (String key : finalTotal.keySet()) {//stelnei jexwrista to key kai to value ston master gia kathe entry sto finalTotals
+                // stelnei ta results ston master 
+                Map<String, Double> finalTotal = state.getTotalsCopy();
+                ObjectOutputStream masterOut  = new ObjectOutputStream(masterSocket.getOutputStream());
+                for (String key : finalTotal.keySet()) {
                     masterOut.writeObject(key);
                     masterOut.writeObject(finalTotal.get(key));
                 }
@@ -65,14 +64,10 @@ public class ReducerServer {
 
  public static void main(String[] args) {
         if (args.length < 1) {
-            System.out.println("Sfalma: Parakalw dwste to port tou Reducer ws orisma!");
-            System.out.println("Paradeigma: java reducer.ReducerServer 2000");
+            System.out.println("Error: Please provide the Reducer port as an argument!");
             return;
         }
-
-        // Παίρνουμε το port δυναμικά από τα ορίσματα (args)
         int reducerPort = Integer.parseInt(args[0]);
-
         ReducerServer server = new ReducerServer(reducerPort);
         server.start();
     }
