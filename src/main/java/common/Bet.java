@@ -1,13 +1,14 @@
 package common;
 import java.io.Serializable;
 
+// memonwmeno bet enos player 
 public class Bet implements Serializable {
-    private String playerId; //id player poy ekane to bet
+    private String playerId; 
     private String GameName;
     private String ProviderName;
-    private double betAmount; //poso bet
-    private double multiplier; //syntelesths poy bghke apo ton pinaka riskoy
-    private double result; //teliko kerdos/zhmia (<0 an exase)
+    private double betAmount; 
+    private double multiplier; // syntelesths apo pinaka riskoy 
+    private double result; 
 
     public Bet(String playerId, String GameName, String ProviderName, double betAmount, double multiplier){
         this.playerId = playerId;
@@ -18,10 +19,11 @@ public class Bet implements Serializable {
         this.result = calculateResult();
     }
 
+    // an multiplier = 0, zhmia = betAmount
     public double calculateResult(){
         double winAmount = betAmount * multiplier;
         double result = winAmount - betAmount;
-        return result; // an multiplier = 0, zhmia = betAmount
+        return result;
     }
 
     //getters
