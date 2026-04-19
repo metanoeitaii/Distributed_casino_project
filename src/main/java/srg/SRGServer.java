@@ -1,27 +1,25 @@
     package srg;
 
-    import java.net.*; //gia socket 
+    import java.net.*; 
     import java.io.*;
 
     public class SRGServer {
 
         public static void main(String[] args) {
            if (args.length < 1) {
-            System.out.println("Sfalma: Parakalw dwste to port tou SRG Server ws orisma!");
-            System.out.println("Paradeigma: java srg.SRGServer 5000");
-            return; // Σταματάει το πρόγραμμα εδώ αν δεν δώσεις port
+            System.out.println("Error: Please provide the SRG Server port as an argument!");
+            return; 
         }
-        
-        // Παίρνει το port αυστηρά από το τερματικό
+
         int port = Integer.parseInt(args[0]);
-            try (ServerSocket serverSocket = new ServerSocket(port)) {//gia na perimenei na syndethei o worker
+            try (ServerSocket serverSocket = new ServerSocket(port)) {
                 System.out.println("SRG Server started on port " + port);
 
                 while (true) {
-                    Socket socket = serverSocket.accept();//otan syndetai enas worker, to accept epistrefei ena socket gia thn syndesh
+                    Socket socket = serverSocket.accept();
                     System.out.println("Worker connected");
 
-                    new Thread(new SRGWorkerHandler(socket)).start();//gia na dimiourghsei ena neo thread gia kathe worker pou syndetai
+                    new Thread(new SRGWorkerHandler(socket)).start(); //neo thread gia kathe worker pou syndeetai
                 }
 
             } catch (IOException e) {
