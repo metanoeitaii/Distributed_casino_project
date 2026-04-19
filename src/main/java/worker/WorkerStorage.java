@@ -9,11 +9,10 @@ import srg.*;
 
 //in-memory bash dedomenwn Worker, apo8hkeyei games, bets, players
 public class WorkerStorage{
-    private final Map<String, Game> games = new HashMap<>(); //key: GameName, value: Game Object
-    private final List<Bet> betHistory = new ArrayList<>(); //istoriko olwn twn bets poy eginan ston worker 
-    private final Map<String, Player> players = new HashMap<>(); //key: playerId, value: Player Object
+    private final Map<String, Game> games = new HashMap<>(); 
+    private final List<Bet> betHistory = new ArrayList<>();
+    private final Map<String, Player> players = new HashMap<>(); 
 
-    //pros8etei neo game sto HashMap
     public synchronized void addGame(Game game){
         games.put(game.getGameName(), game);
     }
