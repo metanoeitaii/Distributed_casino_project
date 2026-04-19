@@ -89,10 +89,10 @@ public class ClientHandler extends Thread {
             }   // o client einai player 
             else if (entoli.equals(Message.SEARCH)) {
                 System.out.println("H entoli pou elava einai SEARCH");
-                Socket searchReducerSocket = new Socket("localhost", 2000);
-                ObjectOutputStream outToSearchReducer = new ObjectOutputStream(searchReducerSocket.getOutputStream());
-                outToSearchReducer.writeObject(workerHosts.size()); 
-                outToSearchReducer.flush();
+                //Socket searchReducerSocket = new Socket("localhost", 2000);
+                //ObjectOutputStream outToSearchReducer = new ObjectOutputStream(searchReducerSocket.getOutputStream());
+                //outToSearchReducer.writeObject(workerHosts.size()); 
+                //outToSearchReducer.flush();
                 // o client einai player
                 String betCategory = in.readLine();
                 String riskLevel = in.readLine();
@@ -110,21 +110,16 @@ public class ClientHandler extends Thread {
                 }
                state.perimenw_finishworkers();
 
-                // 1. Διάβασε τη λίστα από τον Reducer
-                ObjectInputStream inFromReducer = new ObjectInputStream(searchReducerSocket.getInputStream());
-                List<String> gamesFound = (List<String>) inFromReducer.readObject();
 
-                // 2. ΟΡΙΣΜΟΣ του clientout (εδώ ήταν το λάθος)
+                
                 PrintWriter clientout = new PrintWriter(sock2.getOutputStream(), true);
 
-                // 3. Στείλε τα αποτελέσματα στον Player
-                for (String game : gamesFound) {
+                for (String game :state.getApotelesmataa()) {
                     clientout.println(game);
                 }
 
-                // 4. Σήμα τέλους και κλείσιμο
+                
                 clientout.println(Message.END);
-                searchReducerSocket.close();
             }else if (entoli.equals(Message.MAP)){
                 System.out.println("H entoli pou elava einai MAP");
                 String typosMap = in.readLine();
