@@ -236,6 +236,7 @@ public class ClientHandler extends Thread {
                 System.out.println("To game " + GameName + "paei ston worker " + workerthesi);
                  Socket workerSocket = new Socket(workerHosts.get(workerthesi),workerPorts.get(workerthesi));
                 ObjectOutputStream workerOut = new ObjectOutputStream(workerSocket.getOutputStream());
+                workerOut.writeObject(Message.PLAY); 
                 workerOut.writeObject((playerId));   // prwta playerId
                 workerOut.writeObject((GameName));   // meta GameName
                 workerOut.writeObject((betAmount));
