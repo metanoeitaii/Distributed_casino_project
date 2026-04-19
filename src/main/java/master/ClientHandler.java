@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import common.Message;
 
+// xeirizetai ka8e request apo client se jexwristo thread 
 public class ClientHandler extends Thread {
     private Socket sock2;
     private List<String> workerHosts;
@@ -63,7 +64,6 @@ public class ClientHandler extends Thread {
                 String apantisii = (String)workerIn.readObject();
                 PrintWriter clientout = new PrintWriter(sock2.getOutputStream(),true);
                 clientout.println(apantisii);
-                //kleinw worker socket
                 workerSocket.close();
 
             } else if (entoli.equals(Message.REMOVE_GAME)) {
@@ -159,10 +159,7 @@ public class ClientHandler extends Thread {
                     reducerSocket.close();
 
             }
-
-
-
-                
+              
                 else if (entoli.equals(Message.VOTE)) {
                 String GameName = in.readLine();
                 String Stars = in.readLine();
