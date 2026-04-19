@@ -1,6 +1,4 @@
 # Distributed_casino_project
-ergasia katanemimena 2026
-
 
 Το project υλοποιεί ένα κατανεμημένο σύστημα καζίνο σε Java με Maven. Η επικοινωνία γίνεται αποκλειστικά μέσω TCP Sockets με ObjectOutputStream και ObjectInputStream. Η μοναδική εξωτερική εξάρτηση είναι η Gson 2.10.1 για φόρτωση παιχνιδιών από JSON.
 Η αρχιτεκτονική βασίζεται σε πέντε τύπους κόμβων. Ο Manager είναι ένα απλό CLI για το διαχειριστή που ανοίγει νέο socket για κάθε αίτημα. Ο MasterServer είναι ο κεντρικός router του συστήματος, καθώς δέχεται όλες τις συνδέσεις και τις δρομολογεί στους Workers μέσω hash partitioning. Οι Workers κρατούν την in-memory κατάσταση και εκτελούν την επιχειρησιακή λογική. O ReducerServer συγκεντρώνει αποτελέσματα MapReduce από τους Workers. Τέλος, ο SRGServer παράγει τυχαίους αριθμούς με SHA-256 authentication για να εξασφαλιστεί η ακεραιότητ τους. 
