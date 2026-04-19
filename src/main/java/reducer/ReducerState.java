@@ -3,11 +3,12 @@ package reducer;
 import java.util.HashMap;
 import java.util.Map;
 
+// koino state metajy twn threads tou reducer 
 public class ReducerState {
 
     private Map<String, Double> totals;
-    private int expectedWorkers;//posa workers perimenoume 
-    private int finishedWorkers;//posa workers exoun teleiwsei
+    private int expectedWorkers;
+    private int finishedWorkers;
 
     public ReducerState(int expectedWorkers) {
         this.expectedWorkers = expectedWorkers;
@@ -15,7 +16,7 @@ public class ReducerState {
         this.totals = new HashMap<>();
     }
 
-    public synchronized void addPair(String key, double value) {//an yparxei to key tote prosthetei to value alliws dimiourgei neo key me to value
+    public synchronized void addPair(String key, double value) {//prosthetei value sto key h dimiourgei neo key an den yparxei
         if (totals.containsKey(key)) {
             totals.put(key, totals.get(key) + value);
         } else {
@@ -23,6 +24,7 @@ public class ReducerState {
         }
     }
 
+    // eidopoiei otan teleiwsoyn oloi oi workers 
     public synchronized boolean workerFinished() {
         finishedWorkers++;
 
@@ -34,12 +36,14 @@ public class ReducerState {
         return false;
     }
 
+    // mplokarei mexri na teleiwsoun oloi oi workers 
     public synchronized void waitUntilAllWorkersFinish() throws InterruptedException {
         while (finishedWorkers < expectedWorkers) {
             wait();
         }
     }
 
+    // epistrefei antigrafo
     public synchronized Map<String, Double> getTotalsCopy() {
         return new HashMap<>(totals);
     }
