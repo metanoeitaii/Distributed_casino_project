@@ -1,40 +1,40 @@
 package srg;
 
 
-//buffer random numbers pou paragei o SRG kai pane ston worker 
+//buffer random numbers pou paragei o SRG kai katanalwnei o worker 
 public class RandomNumberBuffer{
-    private final int[] buffer; //pinakas poy krataei ta numbers 
-    private int count = 0; //posoi ari8moi twra sto buffer
-    private final int capacity; //max 8eseis sto buffer
+    private final int[] buffer;  
+    private int count = 0; 
+    private final int capacity; 
 
     public RandomNumberBuffer(int capacity){
         this.capacity = capacity;
         this.buffer = new int[capacity];
     }
 
-    //producer -> SRG, bazei neo number sto buffer
+    //o SRG bazei neo number, perimenei an to buffer einai gemato
     public synchronized void produce(int number) throws InterruptedException{
-        while(count == capacity){ //gemato buffer, perimenoume 
+        while(count == capacity){ 
             wait();
         }
-        buffer[count] = number; //bazw ari8mo sthn epomenh eleu8erh 8esh
+        buffer[count] = number; 
         count++;
-        notifyAll(); //eidopoiw consumer oti exoume neo number 
+        notifyAll(); 
     }
 
-    //consumer -> worker, pairnei 1o number apo buffer
+    //o Worker pairnei to 1o number (FIFO), perimenei an einai adeio 
     public synchronized int consume() throws InterruptedException{
-        while(count == 0){ //adeio buffer, perimenw ton producer 
+        while(count == 0){ 
             wait();
         }
 
-        int number = buffer[0]; //pairnw 1o number san oura 
+        int number = buffer[0];
         for(int i = 0; i < count - 1; i++){
-            buffer[i] = buffer[i + 1]; //kanw ta numbers mia 8esh aristera -> h 8esh 0 einai panta o epomenos ari8mos  
+            buffer[i] = buffer[i + 1]; 
         }
 
         count--;
-        notifyAll(); //eidopoiw producer oti yparxei free 8esh
+        notifyAll(); 
         return number;
     }
 }
