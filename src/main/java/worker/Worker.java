@@ -30,7 +30,7 @@ public class Worker{
             while(true){ 
                 Socket clientSocket = serverSocket.accept(); 
                 // neo thread gia ka8e connection
-                WorkerHandler handler = new WorkerHandler(clientSocket, storage, srgHost, srgPort, reducerHost, reducerPort);  gia diaxeirhsh 
+                WorkerHandler handler = new WorkerHandler(clientSocket, storage, srgHost, srgPort, reducerHost, reducerPort);   
                 Thread t = new Thread(handler); 
                 t.start();
             }
