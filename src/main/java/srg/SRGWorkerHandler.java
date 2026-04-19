@@ -1,37 +1,37 @@
 package srg;
 
-import java.net.*; //epikoinonia socket 
+import java.net.*; 
 import java.io.*; 
-import java.security.MessageDigest; //gia na ypologizei to SHA-256
-import java.security.NoSuchAlgorithmException; //gia to exception toy SHA-256
+import java.security.MessageDigest; 
+import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
-public class SRGWorkerHandler implements Runnable { //handler tou SRG server gia 1 Worker  //kathe fora poy worker syndeetai me srg dhmiougeitai ena antikeimeno kai trexei jexwristo thread
+// xeirizetai th syndesh me enan worker , stelnei random numbers me sha-256 epalh8eysh
+public class SRGWorkerHandler implements Runnable { 
 
     private Socket socket;
 
     public SRGWorkerHandler(Socket socket) {
-        this.socket = socket;//syndesh me sygkekrimeno worker
-    }
+        this.socket = socket;
 
     @Override
     public void run() {
 
         try (                   
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());//gia na steilei dedomena ston worker
-            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());//gia na diavasei dedomena apo ton worker
+            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
         ) {
 
-            String secret = (String) in.readObject();//diavazei to secret pou stelnei o worker gia to sygkekrimeno game
+            String secret = (String) in.readObject(); //secret pou stelnei o worker gia to sygkekrimeno game
             System.out.println("Secret received: " + secret);
 
             Random random = new Random();
 
-            while (true) { //o handler stelnei synexeia random numbers mexri na kleisei h syndesh h mexri na ginei kapoio exception
+            while (true) { 
 
-                int number = random.nextInt(100);//dimiourgei random arithmo apo 0 ews 99
+                int number = random.nextInt(100); // 0 ews 99
 
-                String numberStr = String.valueOf(number);//metatroph int se String
+                String numberStr = String.valueOf(number);
                 String hash = sha256(numberStr + secret); //security
 
                 //stelnei jexwrista ton arithmo kai to hash
@@ -47,25 +47,26 @@ public class SRGWorkerHandler implements Runnable { //handler tou SRG server gia
         }
     }
 
-    private String sha256(String input) {//ypologizei to SHA-256 hash enos string se hex   //security
+    // ypologizei sha-256 hash gia epalh8eysh akeraiothtas 
+    private String sha256(String input) {
 
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");//ergalio poy kanei SHA-256
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
 
-            byte[] hash = digest.digest(input.getBytes()); //epistrefei array apo bytes
+            byte[] hash = digest.digest(input.getBytes());
 
             StringBuilder hexString = new StringBuilder();
 
-            for (byte b : hash) {//metatrepei kathe byte se hex
+            for (byte b : hash) {
                 String hex = Integer.toHexString(0xff & b);
 
-                if (hex.length() == 1)//an einai monopshfio bazei mprosta 0 gia na einai dipshfio
+                if (hex.length() == 1)
                     hexString.append('0');
 
                 hexString.append(hex);
             }
 
-            return hexString.toString(); //epistrefei to plhres SHA-256 hash ws string.
+            return hexString.toString(); 
 
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
