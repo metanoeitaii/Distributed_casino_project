@@ -132,7 +132,6 @@ public class WorkerHandler implements Runnable{
     private void handleSearch(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException {
         String betCategory = (String) in.readObject();
         String RiskLevel = (String) in.readObject();
-
         String minStarsStr = (String) in.readObject();
         double minStars = Double.parseDouble(minStarsStr);
 
@@ -147,21 +146,36 @@ public class WorkerHandler implements Runnable{
             }
         }
 
-        for(Game game : results){
-            out.writeObject(game.getGameName());
-            out.writeObject(game.getProviderName());
-            out.writeObject(game.getGameLogo());
-            out.writeObject(game.getStars());
-            out.writeObject(game.getNoOfVotes());
-            out.writeObject(game.getMinBet());
-            out.writeObject(game.getMaxBet());
-            out.writeObject(game.getRiskLevel());
-            out.writeObject(game.getBetCategory());
-            out.writeObject(game.getJackpot());
-            
+        Socket reducerSocket = new Socket(reducerHost, reducerPort);
+        try{
+            ObjectOutputStream reducerOut = new ObjectOutputStream(reducerSocket.getOutputStream());
+    
+            for(Game game : results){
+
+                //ston reducer stelnw (key, value) gia MapReduce
+                reducerOut.writeObject(game.getGameName());
+                reducerOut.writeObject(game.getProviderName());
+                reducerOut.writeObject(game.getGameLogo());
+                reducerOut.writeObject(game.getStars());
+                reducerOut.writeObject(game.getNoOfVotes());
+                reducerOut.writeObject(game.getMinBet());
+                reducerOut.writeObject(game.getMaxBet());
+                reducerOut.writeObject(game.getRiskLevel());
+                reducerOut.writeObject(game.getBetCategory());
+                reducerOut.writeObject(game.getJackpot());
+                reducerOut.flush();
+            }
+
+            reducerOut.writeObject(Message.END);
+            reducerOut.flush();
+
+        }finally{
+            reducerSocket.close();
         }
-        out.writeObject(Message.END);
+
+        out.writeObject(Message.OK); // telos gia master 
         out.flush();
+
     }
 
     private void handlePlay(ObjectInputStream in, ObjectOutputStream out) throws IOException , ClassNotFoundException{
@@ -193,7 +207,7 @@ public class WorkerHandler implements Runnable{
 
         int randomNumber; 
         try{ 
-            randomNumber = game.getRandomNumber(); 
+            randomNumber = game.getRandomNumber();
         }catch(InterruptedException e){ 
             player.addBalance(betAmount); // epistrofh xrhmatwn se sfalma 
             out.writeObject(Message.ERROR + ": COULD NOT GET RANDOM NUMBER");
