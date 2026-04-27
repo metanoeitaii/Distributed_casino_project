@@ -69,7 +69,7 @@ public class ClientHandler extends Thread {
             } else if (entoli.equals(Message.REMOVE_GAME)) {
                 System.out.println("H entoli pou elaba einai REMOVE_GAME");
                 String GameName = in.readLine();
-                //upologizoume se poio worker paei mesw hash
+                //upologizoume se poio worker paei mesw hash 
                 char protogramma = GameName.charAt(0);
                 int workerthesi = protogramma % workerHosts.size();
                 System.out.println("To game " + GameName + "paei ston worker " + workerthesi);
@@ -89,37 +89,59 @@ public class ClientHandler extends Thread {
             }   // o client einai player 
             else if (entoli.equals(Message.SEARCH)) {
                 System.out.println("H entoli pou elava einai SEARCH");
-                //Socket searchReducerSocket = new Socket("localhost", 2000);
-                //ObjectOutputStream outToSearchReducer = new ObjectOutputStream(searchReducerSocket.getOutputStream());
-                //outToSearchReducer.writeObject(workerHosts.size()); 
-                //outToSearchReducer.flush();
-                // o client einai player
+
                 String betCategory = in.readLine();
                 String riskLevel = in.readLine();
                 String minStars = in.readLine();
-                SearchState state = new SearchState(workerHosts.size());
-                   // jekinaw ena thread gia kathe worker
-                  
+
+                //syndeomai me reducer opws MAP 
+                Socket reducerSocket = new Socket("localhost", 2000);
+                ObjectOutputStream reducerOut = new ObjectOutputStream(reducerSocket.getOutputStream());
+                reducerOut.writeObject(workerHosts.size());
+                reducerOut.writeObject("SEARCH"); 
+                reducerOut.flush();
+
+                // stelnw search se oloys toys workers
                 for (int i = 0; i < workerHosts.size(); i++) {
-                    SearchWorkerThread thread = new SearchWorkerThread(
-                        workerHosts.get(i), workerPorts.get(i),
-                        betCategory, riskLevel, minStars, state
-                    );
-                    thread.start();
-                
+                    Socket workerSocket = new Socket(workerHosts.get(i), workerPorts.get(i));
+                    ObjectOutputStream workerOut = new ObjectOutputStream(workerSocket.getOutputStream());
+                    workerOut.writeObject(Message.SEARCH);
+                    workerOut.writeObject(betCategory);
+                    workerOut.writeObject(riskLevel);
+                    workerOut.writeObject(minStars);
+                    workerOut.flush();
+                    ObjectInputStream workerIn = new ObjectInputStream(workerSocket.getInputStream());
+                    workerIn.readObject();
+                    workerSocket.close();
                 }
-               state.perimenw_finishworkers();
 
-
-                
+                //diabazw results apo reducer 
+                ObjectInputStream reducerIn = new ObjectInputStream(reducerSocket.getInputStream());
                 PrintWriter clientout = new PrintWriter(sock2.getOutputStream(), true);
 
-                for (String game :state.getApotelesmataa()) {
-                    clientout.println(game);
-                }
+                Object obj = reducerIn.readObject();
+                    while (!obj.equals(Message.END)) {
+                        String gameName = (String) obj;
+                        String providerName = (String) reducerIn.readObject();
+                        String gameLogo = (String) reducerIn.readObject();
+                        String stars = (String) reducerIn.readObject();
+                        String noOfVotes = (String) reducerIn.readObject();
+                        String minBet = (String) reducerIn.readObject();
+                        String maxBet = (String) reducerIn.readObject();
+                        String gameRiskLevel = (String) reducerIn.readObject();
+                        String gameBetCategory = (String) reducerIn.readObject();
+                        String jackpot = (String) reducerIn.readObject();
 
+                        clientout.println(gameName + "," + providerName + "," + gameLogo + "," +
+                        stars + "," + noOfVotes + "," + minBet + "," + maxBet + "," +
+                        gameRiskLevel + "," + gameBetCategory + "," + jackpot);
+
+                        obj = reducerIn.readObject();
+                    }
+                    clientout.println(Message.END);
+                    reducerSocket.close();
                 
-                clientout.println(Message.END);
+
             }else if (entoli.equals(Message.MAP)){
                 System.out.println("H entoli pou elava einai MAP");
                 String typosMap = in.readLine();
@@ -127,6 +149,7 @@ public class ClientHandler extends Thread {
                 Socket reducerSocket = new Socket("localhost",2000);
                 ObjectOutputStream reducerout = new ObjectOutputStream(reducerSocket.getOutputStream());
                 reducerout.writeObject(workerHosts.size());
+                reducerout.writeObject(Message.MAP);
                 reducerout.flush();
 
                 //stelnw map se olous tous workers 
