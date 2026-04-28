@@ -1,8 +1,9 @@
 package player;
 
-import java.net.Socket;//gia TCP syndesh me ton Master
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.io.PrintWriter;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -11,12 +12,12 @@ import common.Message;
 
 public class Test {
 
-    private static String ClientHANDLER_IP;//pou einai o client handler
-    private static int ClientHandler_PORT ;//port tou client handler
+    private static String ClientHANDLER_IP;
+    private static int ClientHandler_PORT;
 
     public static void main(String[] args) {
-        ClientHANDLER_IP = args[0];//pou einai o client handler
-        ClientHandler_PORT = Integer.parseInt(args[1]);//port tou client handler
+        ClientHANDLER_IP = args[0];
+        ClientHandler_PORT = Integer.parseInt(args[1]);
 
         Scanner scanner = new Scanner(System.in);
 
@@ -25,9 +26,9 @@ public class Test {
         System.out.println("====================================");
 
         System.out.print("Give Player ID: ");
-        String playerId = scanner.nextLine().trim();//xreiazetai gia ADD_BALANCE kai PLAY 
+        String playerId = scanner.nextLine().trim();
 
-        while (true) {//tha trexei synexeia to menu mexri na dialejei Exit
+        while (true) {
             System.out.println();
             System.out.println("============== MENU ==============");
             System.out.println("1. Search games");
@@ -39,7 +40,6 @@ public class Test {
 
             String choice = scanner.nextLine().trim();
 
-            //to scaner pernaei stis methodous gia na mporoyn na diavasoun apo to terminal
             switch (choice) {
                 case "1":
                     handleSearch(scanner);
@@ -76,49 +76,40 @@ public class Test {
         System.out.print("Give minimum stars (e.g., 0, 3.5, 4): ");
         String minStars = scanner.nextLine().trim();
 
-        //an o user pathsei apla enter xwris na dwsei timi, mpainoyn aytomata ta default
-        if (betCategory.isEmpty()) {
-            betCategory = "ALL";
-        }
-        if (riskLevel.isEmpty()) {
-            riskLevel = "ALL";
-        }
-        if (minStars.isEmpty()) {
-            minStars = "0";
-        }
+        if (betCategory.isEmpty()) betCategory = "ALL";
+        if (riskLevel.isEmpty()) riskLevel = "ALL";
+        if (minStars.isEmpty()) minStars = "0";
 
         try (
-            Socket socket = new Socket(ClientHANDLER_IP, ClientHandler_PORT);//tcp syndesh me client handler
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
+            Socket socket = new Socket(ClientHANDLER_IP, ClientHandler_PORT);
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))
         ) {
-            //auta stelnontai ston client handler gia na kanei search me ta sygkekrimena filters
-            out.writeObject(Message.SEARCH);
-            out.writeObject(betCategory);
-            out.writeObject(riskLevel);
-            out.writeObject(minStars);
-            out.flush();
+            out.println(Message.SEARCH);
+            out.println(betCategory);
+            out.println(riskLevel);
+            out.println(minStars);
 
-            List<GameSearchResult> results = new ArrayList<>();//lista pou tha krataei ta apotelesmata poy epistrefei o manager
+            List<GameSearchResult> results = new ArrayList<>();
 
-            while (true) {//teleixnei otan o client handler steilei END
-                String firstField = (String) in.readObject();//diavazei to proto pedio pou stelnei o manager(END h game name)
+            while (true) {
+                String firstField = in.readLine();
 
-                if (firstField.equals(Message.END)) {
+                if (firstField == null || firstField.equals(Message.END)) {
                     break;
                 }
 
-                GameSearchResult game = new GameSearchResult();//krataei ta stoixia enos game
+                GameSearchResult game = new GameSearchResult();
                 game.gameName = firstField;
-                game.providerName = (String) in.readObject();
-                game.gameLogo = (String) in.readObject();
-                game.stars = String.valueOf(in.readObject());
-                game.noOfVotes = String.valueOf(in.readObject());
-                game.minBet = String.valueOf(in.readObject());
-                game.maxBet = String.valueOf(in.readObject());
-                game.riskLevel = (String) in.readObject();
-                game.betCategory = (String) in.readObject();
-                game.jackpot = String.valueOf(in.readObject());
+                game.providerName = in.readLine();
+                game.gameLogo = in.readLine();
+                game.stars = in.readLine();
+                game.noOfVotes = in.readLine();
+                game.minBet = in.readLine();
+                game.maxBet = in.readLine();
+                game.riskLevel = in.readLine();
+                game.betCategory = in.readLine();
+                game.jackpot = in.readLine();
 
                 results.add(game);
             }
@@ -152,7 +143,7 @@ public class Test {
         }
     }
 
-    private static void handleAddBalance(Scanner scanner, String playerId) {//gia na balei lefta o player 
+    private static void handleAddBalance(Scanner scanner, String playerId) {
         System.out.println();
         System.out.println("----- ADD BALANCE -----");
 
@@ -160,19 +151,19 @@ public class Test {
         String amount = scanner.nextLine().trim();
 
         try (
-            Socket socket = new Socket(ClientHANDLER_IP, ClientHandler_PORT);//tcp syndesh me master
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
+            Socket socket = new Socket(ClientHANDLER_IP, ClientHandler_PORT);
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))
         ) {
-            //stelnoyme ston client handler ta aparaitita gia na kanei Add Balance
-            out.writeObject(Message.ADD_BALANCE);
-            out.writeObject(playerId);
-            out.writeObject(amount);
-            out.flush();
+            out.println(Message.ADD_BALANCE);
+            out.println(playerId);
+            out.println(amount);
 
-            String status = (String) in.readObject();//(OK h ERROR) pou epistrefei o client handler
-            
-            if (!status.equals(Message.OK)) {
+            String status = in.readLine();
+
+            if (status != null && status.equals(Message.OK)) {
+                System.out.println("Balance added successfully!");
+            } else {
                 System.out.println("Something went wrong: " + status);
             }
 
@@ -193,25 +184,26 @@ public class Test {
         String betAmount = scanner.nextLine().trim();
 
         try (
-            Socket socket = new Socket(ClientHANDLER_IP, ClientHandler_PORT);//tcp syndesh me client handler
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
+            Socket socket = new Socket(ClientHANDLER_IP, ClientHandler_PORT);
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))
         ) {
-            //stelnoyme ston client handler ta aparaitita gia na kanei Play
-            out.writeObject(Message.PLAY);
-            out.writeObject(playerId);   
-            out.writeObject(gameName);   
-            out.writeObject(betAmount);  
-            out.flush();
-            String status = (String) in.readObject();//(OK h ERROR) pou epistrefei o client handler 
+            out.println(Message.PLAY);
+            out.println(gameName);
+            out.println(playerId);        
+            out.println(betAmount);
 
-            if (!status.equals(Message.OK)) {
+            String status = in.readLine();
+
+            if (status == null || !status.equals(Message.OK)) {
                 System.out.println("Something went wrong: " + status);
                 return;
             }
 
-            double result = (double) in.readObject();//to apotelesma tou paixnidiou (kerdos h zhmia)
-            String type = (String) in.readObject();//(NORMAL h JACKPOT)
+            String resultStr = in.readLine();
+            String type = in.readLine();
+
+            double result = Double.parseDouble(resultStr);
 
             System.out.println("Status: " + status);
 
@@ -235,7 +227,7 @@ public class Test {
         }
     }
 
-    private static void handleVote(Scanner scanner) {//gia rating game
+    private static void handleVote(Scanner scanner) {
         System.out.println();
         System.out.println("----- VOTE GAME -----");
 
@@ -246,17 +238,15 @@ public class Test {
         String stars = scanner.nextLine().trim();
 
         try (
-            Socket socket = new Socket(ClientHANDLER_IP, ClientHandler_PORT);//tcp syndesh me client handler
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
+            Socket socket = new Socket(ClientHANDLER_IP, ClientHandler_PORT);
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))
         ) {
-            //stelnoyme ston client handler ta aparaitita gia na kanei Vote
-            out.writeObject(Message.VOTE);
-            out.writeObject(gameName);
-            out.writeObject(stars);
-            out.flush();
+            out.println(Message.VOTE);
+            out.println(gameName);
+            out.println(stars);
 
-            String status = (String) in.readObject();//(OK h ERROR) pou epistrefei o client handler
+            String status = in.readLine();
             System.out.println("The status of your vote is: " + status);
 
         } catch (Exception e) {
@@ -265,7 +255,7 @@ public class Test {
         }
     }
 
-    private static class GameSearchResult {//gia na krataei ta stoixia enos game poy epistrefei o client handler otan kanei search
+    private static class GameSearchResult {
         String gameName;
         String providerName;
         String gameLogo;
