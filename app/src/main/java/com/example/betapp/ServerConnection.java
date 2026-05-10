@@ -125,6 +125,23 @@ public class ServerConnection{
         }).start();
     }
 
+    public void getBalance(String playerId, Callback<String> callback) {
+        new Thread(() -> {
+            try (
+                    Socket socket = new Socket(ip, port);
+                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            ) {
+                out.println("GET_BALANCE");
+                out.println(playerId);
+                String balance = in.readLine();
+                callback.onSuccess(balance);
+            } catch (Exception e) {
+                callback.onError(e.getMessage());
+            }
+        }).start();
+    }
+
 
 
     public static class GameResult {
