@@ -9,9 +9,9 @@ import srg.*;
 
 //in-memory bash dedomenwn Worker, apo8hkeyei games, bets, players
 public class WorkerStorage{
-    private final Map<String, Game> games = new HashMap<>(); 
+    private final Map<String, Game> games = new HashMap<>();
     private final List<Bet> betHistory = new ArrayList<>();
-    private final Map<String, Player> players = new HashMap<>(); 
+    private final Map<String, Player> players = new HashMap<>();
 
     public synchronized void addGame(Game game){
         games.put(game.getGameName(), game);
@@ -82,5 +82,11 @@ public class WorkerStorage{
             players.put(playerId, player);
         }
         player.addBalance(amount);
+    }
+
+    public synchronized double getBalance(String playerId){
+        Player player = players.get(playerId);
+        if(player == null) return 0.0;
+        return player.getBalance();
     }
 }

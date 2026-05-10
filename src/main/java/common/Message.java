@@ -16,5 +16,6 @@ public class Message {
     public static final String END = "END";
     public static final String JACKPOT = "JACKPOT";
     public static final String NORMAL = "NORMAL";
-    
+    public static final String GET_BALANCE = "GET_BALANCE";
+
 }
