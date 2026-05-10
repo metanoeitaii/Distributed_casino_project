@@ -335,6 +335,6 @@ public class WorkerHandler implements Runnable{
         String playerId = (String) in.readObject();
         double balance = storage.getBalance(playerId);
         out.writeObject(String.valueOf(balance));
-        out.flush();
+        out.flush();//
     }
 }
