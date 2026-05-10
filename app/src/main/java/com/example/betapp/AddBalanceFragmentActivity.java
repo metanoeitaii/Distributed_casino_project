@@ -31,6 +31,19 @@ public class AddBalanceFragmentActivity extends Fragment {
 
         final String finalPlayerId = playerId;
 
+        serverConnection.getBalance(finalPlayerId, new ServerConnection.Callback<String>() {
+            @Override
+            public void onSuccess(String balance) {
+                requireActivity().runOnUiThread(() ->
+                        tvCurrentBalance.setText("Current Balance: " + balance + " FUN"));
+            }
+            @Override
+            public void onError(String error) {
+                requireActivity().runOnUiThread(() ->
+                        tvCurrentBalance.setText("Current Balance: -- FUN"));
+            }
+        });
+
         btnAddBalance.setOnClickListener(v -> {
             String amountStr = etAmount.getText().toString().trim();
             if (amountStr.isEmpty()) {
