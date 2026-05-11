@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment;
 
 public class AddBalanceFragmentActivity extends Fragment {
     //connectig with server
-    private ServerConnection serverConnection = new ServerConnection("172.20.10.7", 8080);
+    private ServerConnection serverConnection = new ServerConnection("10.0.2.2", 8080);
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

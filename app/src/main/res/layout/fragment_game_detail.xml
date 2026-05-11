@@ -109,6 +109,16 @@
             android:layout_marginTop="16dp"/>
 
         <TextView
+            android:id="@+id/tvPlayerBalance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Your Balance: -- FUN"
+            android:textColor="#4ecca3"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Rate this game (1-5):"

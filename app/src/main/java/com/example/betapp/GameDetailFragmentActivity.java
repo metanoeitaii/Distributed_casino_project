@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment;
 
 public class GameDetailFragmentActivity extends Fragment {
     //connecting with server
-    private ServerConnection serverConnection = new ServerConnection("172.20.10.7", 8080);
+    private ServerConnection serverConnection = new ServerConnection("10.0.2.2", 8080);
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -61,6 +61,22 @@ public class GameDetailFragmentActivity extends Fragment {
 
         final String finalPlayerId = playerId;
         final String finalGameName = gameName;
+
+        TextView tvPlayerBalance = view.findViewById(R.id.tvPlayerBalance);
+
+        serverConnection.getBalance(finalPlayerId, new ServerConnection.Callback<String>() {
+            @Override
+            public void onSuccess(String balance) {
+                requireActivity().runOnUiThread(() ->
+                        tvPlayerBalance.setText("Your Balance: " + balance + " FUN"));
+            }
+            @Override
+            public void onError(String error) {
+                requireActivity().runOnUiThread(() ->
+                        tvPlayerBalance.setText("Your Balance: -- FUN"));
+            }
+        });
+
         final float finalMinBet = minBet;
         final float finalMaxBet = maxBet;
 
@@ -88,11 +104,27 @@ public class GameDetailFragmentActivity extends Fragment {
                         String status = parts[0];
                         String winLoss = parts[1];
                         String type = parts[2];
-                        if (type.equals("WIN")) {
-                            tvResult.setText("🏆 You won: " + winLoss + " FUN!");
+                        double winLossDouble = Double.parseDouble(winLoss);
+                        String formatted = String.format("%.2f", Math.abs(winLossDouble));
+                        if (status.startsWith("ERROR")) {
+                            tvResult.setText("❌ " + status);
+                        } else if (type.equals("JACKPOT")) {
+                            tvResult.setText("🏆 JACKPOT! You won: " + formatted + " FUN!");
+                        } else if (Double.parseDouble(winLoss) > 0) {
+                            tvResult.setText("🏆 You won: " + formatted + " FUN!");
                         } else {
-                            tvResult.setText("😞 You lost: " + winLoss + " FUN");
+                            tvResult.setText("😞 You lost: " + formatted + " FUN");
                         }
+
+                        serverConnection.getBalance(finalPlayerId, new ServerConnection.Callback<String>() {
+                            @Override
+                            public void onSuccess(String balance) {
+                                requireActivity().runOnUiThread(() ->
+                                        tvPlayerBalance.setText("Your Balance: " + balance + " FUN"));
+                            }
+                            @Override
+                            public void onError(String error) {}
+                        });
                     });
                 }
                 @Override
