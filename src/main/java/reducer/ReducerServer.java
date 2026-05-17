@@ -11,11 +11,11 @@ import common.Message;
 public class ReducerServer {
 
     private int reducerPort;
-    
+
     public ReducerServer(int reducerPort) {
         this.reducerPort = reducerPort;
     }
-    
+
     public void start() {
 
         try (ServerSocket serverSocket = new ServerSocket(reducerPort)) {
@@ -50,13 +50,13 @@ public class ReducerServer {
                     for (String key : finalTotal.keySet()) {
                         masterOut.writeObject(key);
                         masterOut.writeObject(finalTotal.get(key));
-                    } 
+                    }
                 }else if (mode.equals("SEARCH")){
                     //stelnei keys (gameName)
                     for (String[] gameData : state.getSearchResultsCopy()){
                         for (String field : gameData){
                             masterOut.writeObject(field);
-                        }                 
+                        }
                     }
                 }
 
@@ -71,7 +71,7 @@ public class ReducerServer {
         }
     }
 
- public static void main(String[] args) {
+    public static void main(String[] args) {
         if (args.length < 1) {
             System.out.println("Error: Please provide the Reducer port as an argument!");
             return;

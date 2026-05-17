@@ -6,18 +6,18 @@ import java.io.Serializable;
 public class Game implements Serializable{
 
     private String GameName;
-    private String ProviderName; 
+    private String ProviderName;
     private double Stars; // MO ba8mologias 
-    private int NoOfVotes; 
-    private String GameLogo; 
-    private double MinBet; 
-    private double MaxBet; 
-    private String RiskLevel; 
-    private String HashKey; 
+    private int NoOfVotes;
+    private String GameLogo;
+    private double MinBet;
+    private double MaxBet;
+    private String RiskLevel;
+    private String HashKey;
     private String betCategory; // $/$$/$$$
     private int jackpot;
-    private boolean isActive; 
-    private double totalProfitLoss; 
+    private boolean isActive;
+    private double totalProfitLoss;
     private RandomNumberBuffer randomBuffer;
 
     //Constructor: game me JSON stoixeia
@@ -32,18 +32,18 @@ public class Game implements Serializable{
         this.RiskLevel = RiskLevel;
         this.HashKey = HashKey;
         this.isActive = true; //ka8e neo paixnidi einai active ex arxhs
-        this.totalProfitLoss = 0.0; 
+        this.totalProfitLoss = 0.0;
         this.betCategory = calculateBetCategory(); //ypologizetai aytomata apo to MinBet
         this.jackpot = calculateJackpot(); //ypologizetai aytomata apo to RiskLevel
     }
 
     //ypologizei thn kathgoria pontarismatos basei toy min bet 
     private String calculateBetCategory(){
-        if(MinBet >= 0.1 && MinBet < 1){ 
+        if(MinBet >= 0.1 && MinBet < 1){
             return "$";
-        }else if(MinBet >= 1.0 && MinBet < 5){ 
+        }else if(MinBet >= 1.0 && MinBet < 5){
             return "$$";
-        }else{ 
+        }else{
             return "$$$";
         }
     }
@@ -79,7 +79,7 @@ public class Game implements Serializable{
     public String getGameLogo() { return GameLogo; }
 
     //setters
-    
+
     //de sbhnoume game, to kanoume apla inactive (boh8eia se manager queries)
     public void setActive(boolean active){
         isActive = active;
@@ -108,8 +108,8 @@ public class Game implements Serializable{
     //jekina SRG Client gia to game
     public void initSRG(String srgHost, int srgPort){
         randomBuffer = new RandomNumberBuffer(10); //buffer me capacity 10 numbers
-        SRGClient client = new SRGClient(srgHost, srgPort, HashKey, randomBuffer); 
-        Thread t = new Thread(client); 
+        SRGClient client = new SRGClient(srgHost, srgPort, HashKey, randomBuffer);
+        Thread t = new Thread(client);
         t.setDaemon(true); // stamataei aytomata otan teleiwsei to kyrio programma
         t.start();
     }

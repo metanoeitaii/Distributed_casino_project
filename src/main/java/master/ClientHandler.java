@@ -248,7 +248,6 @@ public class ClientHandler extends Thread {
                 String GameName = in.readLine();
                 String playerId = in.readLine();
                 String betAmount = in.readLine();
-                System.out.println("H entoli pou elava einai Rate");
                 //upologizoume se poio worker paei mesw hash
                 int hashCode = Math.abs(GameName.hashCode());
                 int workerthesi = hashCode % workerHosts.size();

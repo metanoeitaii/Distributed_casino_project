@@ -3,7 +3,7 @@ package common;
 //pinakes pollaplasiastwn gia ka8e epipedo riskou 
 // index i = randomNumber % 10
 // jackpot an randomNumber % 100 == 0
-public class RiskTables{ 
+public class RiskTables{
 
     public static final double[] LOW = {0.0, 0.0, 0.0, 0.1, 0.5, 1.0, 1.1, 1.3, 2.0, 2.5};
     public static final double[] MEDIUM = {0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.5, 2.5, 3.5};

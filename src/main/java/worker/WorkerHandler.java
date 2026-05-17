@@ -190,12 +190,16 @@ public class WorkerHandler implements Runnable{
         Game game = storage.getGame(GameName);
         if(game == null || !game.isActive()){
             out.writeObject(Message.ERROR + ": GAME NOT FOUND");
+            out.writeObject(0.0);
+            out.writeObject(Message.NORMAL);
             out.flush();
             return;
         }
 
         if(betAmount < game.getMinBet() || betAmount > game.getMaxBet()){
             out.writeObject(Message.ERROR + ": BET AMOUNT IS OUTSIDE THE ALLOWED RANGE");
+            out.writeObject(0.0);
+            out.writeObject(Message.NORMAL);
             out.flush();
             return;
         }
@@ -204,6 +208,8 @@ public class WorkerHandler implements Runnable{
         boolean hasBalance = player.deductBalance(betAmount);
         if(!hasBalance){
             out.writeObject(Message.ERROR + ": NOT ENOUGH BALANCE");
+            out.writeObject(0.0);
+            out.writeObject(Message.NORMAL);
             out.flush();
             return;
         }
@@ -214,6 +220,8 @@ public class WorkerHandler implements Runnable{
         }catch(InterruptedException e){
             player.addBalance(betAmount); // epistrofh xrhmatwn se sfalma
             out.writeObject(Message.ERROR + ": COULD NOT GET RANDOM NUMBER");
+            out.writeObject(0.0);
+            out.writeObject(Message.NORMAL);
             out.flush();
             return;
         }

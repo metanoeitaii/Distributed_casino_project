@@ -3,12 +3,12 @@ import java.io.Serializable;
 
 // memonwmeno bet enos player 
 public class Bet implements Serializable {
-    private String playerId; 
+    private String playerId;
     private String GameName;
     private String ProviderName;
-    private double betAmount; 
+    private double betAmount;
     private double multiplier; // syntelesths apo pinaka riskoy 
-    private double result; 
+    private double result;
 
     public Bet(String playerId, String GameName, String ProviderName, double betAmount, double multiplier){
         this.playerId = playerId;

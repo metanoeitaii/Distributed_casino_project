@@ -39,18 +39,18 @@ public class ReducerWorkerHandler implements Runnable {//
                     String gameName = (String) obj;
                     String providerName = (String) in.readObject();
                     String gameLogo = (String) in.readObject();
-                    double stars = (double) in.readObject();
-                    int noOfVotes = (int) in.readObject();
-                    double minBet = (double) in.readObject();
-                    double maxBet = (double) in.readObject();
+                    double stars = ((Number) in.readObject()).doubleValue();
+                    int noOfVotes = ((Number) in.readObject()).intValue();
+                    double minBet = ((Number) in.readObject()).doubleValue();
+                    double maxBet = ((Number) in.readObject()).doubleValue();
                     String riskLevel = (String) in.readObject();
                     String betCategory = (String) in.readObject();
-                    double jackpot = (double) in.readObject();
+                    double jackpot = ((Number) in.readObject()).doubleValue();
 
                     String[] gameData = {gameName, providerName, gameLogo,
-                        String.valueOf(stars), String.valueOf(noOfVotes),
-                        String.valueOf(minBet), String.valueOf(maxBet),
-                        riskLevel, betCategory, String.valueOf(jackpot)};
+                            String.valueOf(stars), String.valueOf(noOfVotes),
+                            String.valueOf(minBet), String.valueOf(maxBet),
+                            riskLevel, betCategory, String.valueOf(jackpot)};
 
                     state.addSearchResult(gameData);
                 }

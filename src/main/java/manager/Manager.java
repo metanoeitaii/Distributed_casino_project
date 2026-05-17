@@ -1,4 +1,4 @@
-package manager; 
+package manager;
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
@@ -7,7 +7,7 @@ import com.google.gson.Gson;
 import java.nio.file.*;
 import common.Game;
 public class Manager {
-    private static final String Master_Ip = "172.20.10.3"; //ip masterserver allagh
+    private static final String Master_Ip = "172.20.10.7"; //ip masterserver allagh
     private static final int Master_port = 8080;        //port masterserver
     public static void main(String[] args) {
         Scanner scanner  = new Scanner(System.in);
@@ -28,71 +28,71 @@ public class Manager {
                 //diabazei json kai stelnei ston Master
                 System.out.println("Dose to path tou JSON");
                 String filename = scanner.nextLine();
-                
-            try (Socket socket = new Socket(Master_Ip, Master_port);
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {  
-                    //diabasma json arxeiou 
-                String json = new String(Files.readAllBytes(Paths.get(filename)));
-                 Gson gson = new Gson();
-                Game game = gson.fromJson(json, Game.class);
-                //stelnei dedomena ston master 
-                out.println(Message.ADD_GAME);
-               out.println(game.getGameName());
-               out.println(game.getProviderName());
-               out.println(game.getStars());
-               out.println(game.getNoOfVotes());
-               out.println(game.getGameLogo());
-               out.println(game.getMinBet());
-               out.println(game.getMaxBet());
-               out.println(game.getRiskLevel());
-               out.println(game.getHashKey());
-                String apantisi = in.readLine();
-                System.out.println("Apantisi:"+ apantisi);
 
-            
-
-    } catch (Exception e) {
-        System.out.println("Error: "+ e.getMessage());
-    }   
-}  else if (epilogi.equals("2")) {
-                System.out.print("Dose to onoma tou paixnidiou: ");
-                String gameName = scanner.nextLine();
-                
                 try (Socket socket = new Socket(Master_Ip, Master_port);
                      PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                      BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-                    
+                    //diabasma json arxeiou 
+                    String json = new String(Files.readAllBytes(Paths.get(filename)));
+                    Gson gson = new Gson();
+                    Game game = gson.fromJson(json, Game.class);
+                    //stelnei dedomena ston master
+                    out.println(Message.ADD_GAME);
+                    out.println(game.getGameName());
+                    out.println(game.getProviderName());
+                    out.println(game.getStars());
+                    out.println(game.getNoOfVotes());
+                    out.println(game.getGameLogo());
+                    out.println(game.getMinBet());
+                    out.println(game.getMaxBet());
+                    out.println(game.getRiskLevel());
+                    out.println(game.getHashKey());
+                    String apantisi = in.readLine();
+                    System.out.println("Apantisi:"+ apantisi);
+
+
+
+                } catch (Exception e) {
+                    System.out.println("Error: "+ e.getMessage());
+                }
+            }  else if (epilogi.equals("2")) {
+                System.out.print("Dose to onoma tou paixnidiou: ");
+                String gameName = scanner.nextLine();
+
+                try (Socket socket = new Socket(Master_Ip, Master_port);
+                     PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                     BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+
                     out.println(Message.REMOVE_GAME);
                     out.println(gameName);
-                    
+
                     String apantisi = in.readLine();
                     System.out.println("Apantisi: " + apantisi);
-                    
+
                 } catch (Exception e) {
                     System.out.println("Error: " + e.getMessage());
                 }
             }
-                else if (epilogi.equals("3")) {
+            else if (epilogi.equals("3")) {
                 System.out.print("Dose to onoma tou paixnidiou: ");
                 String gameName = scanner.nextLine();
                 System.out.print("Dose neo risk (low/medium/high): ");
                 String newRisk = scanner.nextLine();
-                
+
                 try (Socket socket = new Socket(Master_Ip, Master_port);
                      PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                      BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-                    
+
                     out.println(Message.UPDATE_RISK);
                     out.println(gameName);
                     out.println(newRisk);
-                    
+
                     String apantisi = in.readLine();
                     System.out.println("Apantisi: " + apantisi);
-                    
+
                 } catch (Exception e) {
                     System.out.println("Error: " + e.getMessage());
-         }       }else if (epilogi.equals("4") || epilogi.equals("5") || epilogi.equals("6")) {
+                }       }else if (epilogi.equals("4") || epilogi.equals("5") || epilogi.equals("6")) {
                 String mapType;
                 if (epilogi.equals("4")) mapType = "PROVIDER";
                 else if (epilogi.equals("5")) mapType = "PLAYER";
@@ -101,7 +101,7 @@ public class Manager {
                 try (Socket socket = new Socket(Master_Ip, Master_port);
                      PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                      BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-                   
+
                     out.println(Message.MAP);
                     out.println(mapType);
                     String line = in.readLine();
@@ -113,13 +113,13 @@ public class Manager {
                     System.out.println("Error: " + e.getMessage());
                 }
 
-}            else if (epilogi.equals("7")) {
-    //exodos apo to programma
+            }            else if (epilogi.equals("7")) {
+                //exodos apo to programma
                 System.out.println("EXODOS APO TO MENU");
                 break;
-    }
+            }
         }
         scanner.close();
-    
-}
+
     }
+}
